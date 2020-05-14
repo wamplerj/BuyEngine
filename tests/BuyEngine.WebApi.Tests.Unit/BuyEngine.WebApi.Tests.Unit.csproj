@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BuyEngine.WebApi\BuyEngine.WebApi.csproj" />
+    <ProjectReference Include="..\..\src\BuyEngine.WebApi\BuyEngine.WebApi.csproj" />
   </ItemGroup>
 
 </Project>

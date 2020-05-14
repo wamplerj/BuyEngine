@@ -1,7 +1,7 @@
 ﻿using BuyEngine.Catalog;
 using BuyEngine.Common;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using NLog;
 using System.Threading.Tasks;
 
 namespace BuyEngine.WebApi.Catalog
@@ -11,12 +11,12 @@ namespace BuyEngine.WebApi.Catalog
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
-        private readonly ILogger _logger;
+        private readonly Logger _logger;
 
-        public ProductController(IProductService productService, ILogger logger)
+        public ProductController(IProductService productService)
         {
             _productService = productService;
-            _logger = logger;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         [HttpGet]
@@ -24,14 +24,18 @@ namespace BuyEngine.WebApi.Catalog
         public async Task<ActionResult> Get(int productId)
         {
             if (productId <= 0)
+            {
+                _logger.Info($"ProductId is invalid.  Id must be >= 0");
                 return BadRequest($"{productId} is not a valid Product ID");
+            }
 
             var product = await _productService.GetAsync(productId);
 
-            if (product == null)
-                return NotFound($"ProductId: {productId} was not found");
+            if (product != null) 
+                return Ok(product);
 
-            return Ok(product);
+            _logger.Info($"ProductId: {productId} was not found.");
+            return NotFound($"ProductId: {productId} was not found");
         }
 
         [HttpPost]
@@ -47,7 +51,7 @@ namespace BuyEngine.WebApi.Catalog
             }
             catch (ValidationException vex)
             {
-                _logger.LogError(vex, $"Failed to add Product: {product.Sku} due to validation issues");
+                _logger.Error(vex, $"Failed to add Product: {product.Sku} due to validation issues");
 
                 //TODO Map ValidationResult into ModelStateDictionary
                 return BadRequest();

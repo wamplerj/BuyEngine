@@ -21,7 +21,7 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
             _productService = new Mock<IProductService>();
             _logger = new Mock<ILogger>();
 
-            _controller = new ProductController(_productService.Object, _logger.Object);
+            _controller = new ProductController(_productService.Object);
         }
 
         [Test]

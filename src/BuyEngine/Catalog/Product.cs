@@ -35,7 +35,7 @@ namespace BuyEngine.Catalog
             builder.Property(b => b.Price).IsRequired().HasColumnType("decimal(18,4)");
             builder.Property(b => b.Quantity).IsRequired();
             builder.Property(b => b.Enabled).IsRequired();
-            builder.HasOne(b => b.Supplier).WithMany(p => p.Products).HasForeignKey("SupplierId");
+            builder.HasOne(s => s.Supplier).WithMany(p => p.Products).HasForeignKey("SupplierId");
             builder.HasOne(b => b.Brand).WithMany(p => p.Products).HasForeignKey("BrandId");
             builder.HasData(new Product {Id = 1, Sku = "APP-IPH-001", Name = "iPhone 11", Price = 699m, Quantity = 75, BrandId = 1, SupplierId = 1},
                 new Product {Id = 2, Sku = "APP-IPH-002", Name = "iPhone 11 Pro", Quantity = 125, Price = 999m, BrandId = 1, SupplierId = 1 },

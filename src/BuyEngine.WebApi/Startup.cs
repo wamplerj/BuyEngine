@@ -22,7 +22,12 @@ namespace BuyEngine.WebApi
         {
             //TODO Load ConnectionString Name from CatalogConfiguration
             services.AddDbContext<CatalogDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("BuyEngine"), b => b.MigrationsAssembly("BuyEngine")));
+                options.UseSqlServer(Configuration.GetConnectionString("BuyEngine"),
+                    b => b.MigrationsAssembly("BuyEngine")));
+
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
 
             services.AddControllers();
             services.AddCatalogServices();

@@ -38,6 +38,25 @@ namespace BuyEngine.WebApi.Catalog
             return NotFound($"ProductId: {productId} was not found");
         }
 
+        [HttpGet]
+        [Route("/be-api/products/sku/{sku}")]
+        public async Task<ActionResult> Get(string sku)
+        {
+            if (string.IsNullOrEmpty(sku))
+            {
+                _logger.Info($"Sku is invalid.  Sku cannot be null or empty");
+                return BadRequest($"{sku} is not a valid sku");
+            }
+
+            var product = await _productService.GetAsync(sku);
+
+            if (product != null)
+                return Ok(product);
+
+            _logger.Info($"Sku: {sku} was not found.");
+            return NotFound($"Sku: {sku} was not found.");
+        }
+
         [HttpPost]
         [Route("/be-api/products")]
         public async Task<ActionResult> Add([FromBody] Product product)

@@ -21,17 +21,32 @@ namespace BuyEngine.Catalog
 
         public Product Get(int productId)
         {
-            return _catalogDbContext.Products.FirstOrDefault(p => p.Id == productId);
+            return GetAsync(productId).Result;
         }
 
-        public Task<Product> GetAsync(int productId)
+        public async Task<Product> GetAsync(int productId)
         {
-            return _catalogDbContext.Products.FirstOrDefaultAsync(p => p.Id == productId);
+            var product = await _catalogDbContext.Products
+                .AsNoTracking()
+                .Include(s => s.Supplier)
+                .Include(b => b.Brand)
+                .Where(p => p.Id == productId).FirstOrDefaultAsync();
+
+            return product;
         }
 
         public Product Get(string sku)
         {
-            return _catalogDbContext.Products.FirstOrDefault(p => p.Sku.Equals(sku, StringComparison.OrdinalIgnoreCase));
+            return GetAsync(sku).Result;
+        }
+
+        public async Task<Product> GetAsync(string sku)
+        {
+            return await _catalogDbContext.Products
+                .AsNoTracking()
+                //.Include(s => s.Supplier)
+                //.Include(b => b.Brand)
+                .Where(p => p.Sku.Equals(sku)).FirstOrDefaultAsync();
         }
 
         public IList<Product> GetAll(int pageSize, int page)
@@ -112,11 +127,14 @@ namespace BuyEngine.Catalog
     {
         int Add(Product product);
         Task<int> AddAsync(Product product);
+
         Product Get(int productId);
         Task<Product> GetAsync(int productId);
         Product Get(string sku);
+        Task<Product> GetAsync(string sku);
         IList<Product> GetAll(int pageSize, int page);
         IList<Product> GetAllBySupplier(int supplierId, int pageSize, int page);
+
         bool IsSkuUnique(string sku);
         int Remove(int productId);
         int Remove(Product product);

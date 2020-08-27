@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace BuyEngine.Catalog
@@ -44,8 +43,8 @@ namespace BuyEngine.Catalog
         {
             return await _catalogDbContext.Products
                 .AsNoTracking()
-                //.Include(s => s.Supplier)
-                //.Include(b => b.Brand)
+                .Include(s => s.Supplier)
+                .Include(b => b.Brand)
                 .Where(p => p.Sku.Equals(sku)).FirstOrDefaultAsync();
         }
 
@@ -61,20 +60,15 @@ namespace BuyEngine.Catalog
 
         public int Add(Product product)
         {
-            return AddAsync(product).Result;
-        }
-
-        public async Task<int> AddAsync(Product product)
-        {
             if (product == null)
                 throw new ArgumentNullException(nameof(product), "Product can not be null");
 
-            var result = await _productValidator.IsValidAsync(product);
+            var result = _productValidator.IsValid(product);
             if (!result.IsValid)
                 throw new ValidationException(result, nameof(product));
 
-            await _catalogDbContext.Products.AddAsync(product);
-            await _catalogDbContext.SaveChangesAsync(new CancellationToken());
+            _catalogDbContext.Products.Add(product);
+            _catalogDbContext.SaveChanges();
 
             return product.Id;
         }
@@ -94,27 +88,23 @@ namespace BuyEngine.Catalog
             return product.Id;
         }
 
-        public int Remove(Product product)
+        public void Remove(Product product)
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product), "Product can not be null");
 
             _catalogDbContext.Products.Remove(product);
             _catalogDbContext.SaveChanges();
-
-            return product.Id;
         }
 
-        public int Remove(int productId)
+        public void Remove(int productId)
         {
             if (productId <= 0)
                 throw new ArgumentOutOfRangeException(nameof(productId), "ProductId must be greater then 0");
 
             var product = _catalogDbContext.Products.FirstOrDefault(p => p.Id == productId);
             if (product == null)
-                throw new ArgumentException(nameof(productId), "ProductId could not be found");
-
-            return Remove(product);
+                throw new ArgumentException("ProductId could not be found", nameof(productId));
         }
 
         public bool IsSkuUnique(string sku)
@@ -126,8 +116,7 @@ namespace BuyEngine.Catalog
     public interface IProductService
     {
         int Add(Product product);
-        Task<int> AddAsync(Product product);
-
+        
         Product Get(int productId);
         Task<Product> GetAsync(int productId);
         Product Get(string sku);
@@ -136,8 +125,8 @@ namespace BuyEngine.Catalog
         IList<Product> GetAllBySupplier(int supplierId, int pageSize, int page);
 
         bool IsSkuUnique(string sku);
-        int Remove(int productId);
-        int Remove(Product product);
+        void Remove(int productId);
+        void Remove(Product product);
         int Update(Product product);
     }
 }

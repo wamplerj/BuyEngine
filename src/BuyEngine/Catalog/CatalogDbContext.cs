@@ -18,7 +18,7 @@ namespace BuyEngine.Catalog
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //TODO Load DbSchema via CatalogConfiguration 
+            //TODO: Load DbSchema via CatalogConfiguration 
             modelBuilder.HasDefaultSchema("BuyEngine");
 
             modelBuilder.ApplyConfiguration(new BrandTypeConfiguration());

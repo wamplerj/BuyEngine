@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BuyEngine.Catalog.Suppliers;
+using BuyEngine.Common;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BuyEngine.Catalog
@@ -12,6 +14,8 @@ namespace BuyEngine.Catalog
             services.AddScoped<ICatalogDbContext, CatalogDbContext>();
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IProductValidator, ProductValidator>();
+            services.AddTransient<ISupplierService, SupplierService>();
+            services.AddTransient<IModelValidator<Supplier>, SupplierValidator>();
 
             return services;
         }

@@ -16,21 +16,16 @@ namespace BuyEngine.Catalog
 
         public ValidationResult IsValid(Product product)
         {
-            return IsValidAsync(product).Result;
-        }
-
-        public async Task<ValidationResult> IsValidAsync(Product product)
-        {
             var result = new ValidationResult();
 
-            if(string.IsNullOrWhiteSpace(product.Sku))
+            if (string.IsNullOrWhiteSpace(product.Sku))
                 result.AddMessage(nameof(product.Sku), "Product SKU is Required");
 
-            var unique = await IsSkuUniqueAsync(product.Sku);
-            if(!unique)
+            var unique = IsSkuUnique(product.Sku);
+            if (!unique)
                 result.AddMessage(nameof(product.Sku), "Product SKU must be Unique");
 
-            if(string.IsNullOrWhiteSpace(product.Name))
+            if (string.IsNullOrWhiteSpace(product.Name))
                 result.AddMessage(nameof(product.Name), "Product Name is Required");
 
             return result;
@@ -38,7 +33,7 @@ namespace BuyEngine.Catalog
 
         public bool IsSkuUnique(string sku)
         {
-            return IsSkuUniqueAsync(sku).Result;
+            return IsSkuUniqueAsync(sku).GetAwaiter().GetResult();
         }
 
         public async Task<bool> IsSkuUniqueAsync(string sku)

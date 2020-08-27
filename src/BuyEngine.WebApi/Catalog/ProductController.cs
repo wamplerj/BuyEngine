@@ -59,11 +59,11 @@ namespace BuyEngine.WebApi.Catalog
 
         [HttpPost]
         [Route("/be-api/products")]
-        public async Task<ActionResult> Add([FromBody] Product product)
+        public ActionResult Add([FromBody] Product product)
         {
             try
             {
-                var result = await _productService.AddAsync(product);
+                var result = _productService.Add(product);
                 //TODO Get url dynamically
                 return Created($"/be-api/products/{result}", product);
 

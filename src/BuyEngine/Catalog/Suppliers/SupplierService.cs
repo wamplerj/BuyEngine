@@ -76,6 +76,17 @@ namespace BuyEngine.Catalog.Suppliers
 
             Remove(supplier);
         }
+
+        public bool IsValid(Supplier supplier)
+        {
+            var result = Validate(supplier);
+            return result.IsValid;
+        }
+
+        public ValidationResult Validate(Supplier supplier)
+        {
+            return _validator.IsValid(supplier);
+        }
     }
 
     public interface ISupplierService
@@ -88,5 +99,8 @@ namespace BuyEngine.Catalog.Suppliers
         void Update(Supplier supplier);
         void Remove(Supplier supplier);
         void Remove(int supplierId);
+
+        bool IsValid(Supplier supplier);
+        ValidationResult Validate(Supplier supplier);
     }
 }

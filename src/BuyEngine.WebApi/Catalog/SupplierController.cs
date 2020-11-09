@@ -1,5 +1,4 @@
 ﻿using BuyEngine.Catalog.Suppliers;
-using BuyEngine.Common;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 using System.Threading.Tasks;
@@ -42,39 +41,31 @@ namespace BuyEngine.WebApi.Catalog
         [Route("/be-api/products/suppliers")]
         public ActionResult Add([FromBody] Supplier supplier)
         {
-            try
+            var result = _supplierService.Validate(supplier);
+            if (!result.IsValid)
             {
-                var id = _supplierService.Add(supplier);
-                return Created(Url.Action("Get", id), supplier);
-
+                _logger.Info($"Failed to add Supplier: {supplier.Name} due to validation issues");
+                return BadRequest(result.Messages);
             }
-            catch (ValidationException vex)
-            {
-                _logger.Error(vex, $"Failed to add Supplier: {supplier.Name} due to validation issues");
-
-                //TODO: Map ValidationResult into ModelStateDictionary
-                return BadRequest();
-            }
+            
+            var id = _supplierService.Add(supplier);
+            return Created(Url.Action("Get", id), supplier);
         }
 
         [HttpPut]
         [Route("/be-api/products/suppliers")]
         public ActionResult Update([FromBody] Supplier supplier)
         {
-            try
+            var result = _supplierService.Validate(supplier);
+            if (!result.IsValid)
             {
-                _supplierService.Update(supplier);
-                var url = Url.Action("Get");
-                return Ok(url);
-
+                _logger.Info($"Failed to update Supplier: {supplier.Name} due to validation issues");
+                return BadRequest(result.Messages);
             }
-            catch (ValidationException vex)
-            {
-                _logger.Error(vex, $"Failed to update Supplier: {supplier.Name} due to validation issues");
 
-                //TODO: Map ValidationResult into ModelStateDictionary
-                return BadRequest();
-            }
+            _supplierService.Update(supplier);
+            var url = Url.Action("Get");
+            return Ok(url);
         }
 
         [HttpDelete]

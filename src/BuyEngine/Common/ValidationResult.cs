@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace BuyEngine.Common
 {
@@ -7,18 +8,15 @@ namespace BuyEngine.Common
 
         public ValidationResult()
         {
-            IsValid = true;
             Messages = new Dictionary<string, string>();
         }
+        
+        public bool IsValid => !Messages.Any();
 
-        public bool IsValid { get; private set; }
-
-        public IDictionary<string, string> Messages { get; private set; }
+        public IDictionary<string, string> Messages { get; }
 
         public void AddMessage(string name, string message)
         {
-            if (IsValid) IsValid = false;
-
             Messages.Add(name, message);
         }
     }

@@ -1,9 +1,8 @@
-﻿using System.Threading.Tasks;
-
-namespace BuyEngine.Common
+﻿namespace BuyEngine.Common
 {
     public interface IModelValidator<in T>
     {
-        ValidationResult IsValid(T t);
+        bool IsValid(T t) => Validate(t).IsValid;
+        ValidationResult Validate(T t);
     }
 }

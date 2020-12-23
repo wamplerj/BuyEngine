@@ -13,7 +13,6 @@ namespace BuyEngine.WebApi
             try
             {
                 LogManager.Configuration = ConfigureNLog();
-
                 CreateHostBuilder(args).Build().Run();
             }
             finally
@@ -35,7 +34,7 @@ namespace BuyEngine.WebApi
             // Targets where to log to: File and Console
             var logfile = new FileTarget("logfile")
             {
-                FileName = "../../../../logs/BuyeEngine.WebApi/log.txt",
+                FileName = "../../../../logs/BuyEngine.WebApi/log.txt",
                 ArchiveFileName = "log-{#}.txt",
                 ArchiveNumbering = ArchiveNumberingMode.Date,
                 ArchiveDateFormat = "yyyyMMdd-HH",

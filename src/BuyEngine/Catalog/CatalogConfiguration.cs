@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BuyEngine.Catalog
+﻿namespace BuyEngine.Catalog
 {
-    public class CatalogConfiguration
+    public static class CatalogConfiguration
     {
-        public string DbSchema { get; set; } = "BE";
+        public static string DbSchema { get; set; } = "BE";
+        public const int DefaultRecordsPerPage = 25;
     }
 }

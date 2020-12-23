@@ -30,7 +30,7 @@ namespace BuyEngine.Tests.Unit.Catalog
             };
 
 
-            var result = _validator.IsValid(product);
+            var result = _validator.Validate(product);
             Assert.That(result.IsValid, Is.True);
             Assert.That(result.Messages, Is.Empty);
         }
@@ -43,7 +43,7 @@ namespace BuyEngine.Tests.Unit.Catalog
                 Name = "Test Product"
             };
 
-            var result = _validator.IsValid(product);
+            var result = _validator.Validate(product);
             Assert.That(result.IsValid, Is.False);
             Assert.That(result.Messages.Count, Is.EqualTo(1));
             Assert.That(result.Messages.First().Key, Is.EqualTo(nameof(product.Sku)));

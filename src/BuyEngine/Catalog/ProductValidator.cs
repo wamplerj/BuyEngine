@@ -14,7 +14,7 @@ namespace BuyEngine.Catalog
             _catalogDbContext = catalogDbContext;
         }
 
-        public ValidationResult IsValid(Product product)
+        public ValidationResult Validate(Product product)
         {
             var result = new ValidationResult();
 
@@ -27,6 +27,9 @@ namespace BuyEngine.Catalog
 
             if (string.IsNullOrWhiteSpace(product.Name))
                 result.AddMessage(nameof(product.Name), "Product Name is Required");
+            
+            if(product.Price < decimal.Zero)
+                result.AddMessage(nameof(product.Price), $"Product {nameof(product.Price)} must be greater then or equal to zero");
 
             return result;
         }

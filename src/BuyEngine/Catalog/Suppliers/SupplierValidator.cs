@@ -4,7 +4,7 @@ namespace BuyEngine.Catalog.Suppliers
 {
     public class SupplierValidator : IModelValidator<Supplier>
     {
-        public ValidationResult IsValid(Supplier supplier)
+        public ValidationResult Validate(Supplier supplier)
         {
             var result = new ValidationResult();
 

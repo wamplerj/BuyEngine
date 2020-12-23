@@ -20,7 +20,7 @@ namespace BuyEngine.Catalog
 
         public Product Get(int productId)
         {
-            return GetAsync(productId).Result;
+            return GetAsync(productId).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public async Task<Product> GetAsync(int productId)
@@ -36,7 +36,7 @@ namespace BuyEngine.Catalog
 
         public Product Get(string sku)
         {
-            return GetAsync(sku).Result;
+            return GetAsync(sku).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public async Task<Product> GetAsync(string sku)
@@ -48,22 +48,21 @@ namespace BuyEngine.Catalog
                 .Where(p => p.Sku.Equals(sku)).FirstOrDefaultAsync();
         }
 
-        public IList<Product> GetAll(int pageSize, int page)
+        public IList<Product> GetAll(int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
         {
             return _catalogDbContext.Products.Skip(pageSize * page + 1).Take(pageSize).ToList();
         }
 
-        public IList<Product> GetAllBySupplier(int supplierId, int pageSize, int page)
+        public IList<Product> GetAllBySupplier(int supplierId, int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
         {
             return _catalogDbContext.Products.Skip(pageSize * page + 1).Take(pageSize).ToList();
         }
 
         public int Add(Product product)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product), "Product can not be null");
+            Guard.AgainstNull(product, nameof(product));
 
-            var result = _productValidator.IsValid(product);
+            var result = _productValidator.Validate(product);
             if (!result.IsValid)
                 throw new ValidationException(result, nameof(product));
 
@@ -75,12 +74,11 @@ namespace BuyEngine.Catalog
 
         public int Update(Product product)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product), "Product can not be null");
+            Guard.AgainstNull(product, nameof(product));
 
-            var result = _productValidator.IsValid(product);
+            var result = _productValidator.Validate(product);
             if (!result.IsValid)
-                throw new ArgumentException(nameof(product), "");
+                throw new ValidationException(result, nameof(product));
 
             _catalogDbContext.Products.Update(product);
             _catalogDbContext.SaveChanges();
@@ -90,8 +88,7 @@ namespace BuyEngine.Catalog
 
         public void Remove(Product product)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product), "Product can not be null");
+            Guard.AgainstNull(product, nameof(product));
 
             _catalogDbContext.Products.Remove(product);
             _catalogDbContext.SaveChanges();
@@ -111,6 +108,11 @@ namespace BuyEngine.Catalog
         {
             return _productValidator.IsSkuUnique(sku);
         }
+
+        public ValidationResult Validate(Product product)
+        {
+            return _productValidator.Validate(product);
+        }
     }
 
     public interface IProductService
@@ -128,5 +130,7 @@ namespace BuyEngine.Catalog
         void Remove(int productId);
         void Remove(Product product);
         int Update(Product product);
+        ValidationResult Validate(Product product);
+        
     }
 }

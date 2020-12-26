@@ -50,12 +50,22 @@ namespace BuyEngine.Catalog
 
         public IList<Product> GetAll(int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
         {
-            return _catalogDbContext.Products.Skip(pageSize * page + 1).Take(pageSize).ToList();
+            return GetAllAsync(pageSize, page).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public async Task<IList<Product>> GetAllAsync(int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
+        {
+            return await _catalogDbContext.Products.Skip(page * pageSize).Take(pageSize).ToListAsync();
         }
 
         public IList<Product> GetAllBySupplier(int supplierId, int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
         {
-            return _catalogDbContext.Products.Skip(pageSize * page + 1).Take(pageSize).ToList();
+            return GetAllBySupplierAsync(supplierId, pageSize, page).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public async Task<IList<Product>> GetAllBySupplierAsync(int supplierId, int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
+        {
+            return await _catalogDbContext.Products.Skip(pageSize * page).Take(pageSize).ToListAsync();
         }
 
         public int Add(Product product)
@@ -76,7 +86,7 @@ namespace BuyEngine.Catalog
         {
             Guard.AgainstNull(product, nameof(product));
 
-            var result = _productValidator.Validate(product);
+            var result = _productValidator.Validate(product, requireUniqueSku:false);
             if (!result.IsValid)
                 throw new ValidationException(result, nameof(product));
 
@@ -108,11 +118,16 @@ namespace BuyEngine.Catalog
         {
             return _productValidator.IsSkuUnique(sku);
         }
-
-        public ValidationResult Validate(Product product)
+        public Task<bool> IsSkuUniqueAsync(string sku)
         {
-            return _productValidator.Validate(product);
+            return _productValidator.IsSkuUniqueAsync(sku);
         }
+
+        public ValidationResult Validate(Product product, bool requireUniqueSku)
+        {
+            return _productValidator.Validate(product, requireUniqueSku);
+        }
+
     }
 
     public interface IProductService
@@ -124,13 +139,16 @@ namespace BuyEngine.Catalog
         Product Get(string sku);
         Task<Product> GetAsync(string sku);
         IList<Product> GetAll(int pageSize, int page);
+        Task<IList<Product>> GetAllAsync(int pageSize, int page);
         IList<Product> GetAllBySupplier(int supplierId, int pageSize, int page);
+        Task<IList<Product>> GetAllBySupplierAsync(int supplierId, int pageSize, int page);
 
         bool IsSkuUnique(string sku);
+        Task<bool> IsSkuUniqueAsync(string sku);
         void Remove(int productId);
         void Remove(Product product);
         int Update(Product product);
-        ValidationResult Validate(Product product);
+        ValidationResult Validate(Product product, bool requireUniqueSku);
         
     }
 }

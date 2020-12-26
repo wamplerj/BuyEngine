@@ -61,20 +61,38 @@ namespace BuyEngine.WebApi.Catalog
         [Route("/be-api/products")]
         public ActionResult Add([FromBody] Product product)
         {
-            try
-            {
-                var result = _productService.Add(product);
-                //TODO Get url dynamically
-                return Created($"/be-api/products/{result}", product);
+            Guard.AgainstNull(product, nameof(product));
 
-            }
-            catch (ValidationException vex)
+            var validationResult = _productService.Validate(product, requireUniqueSku:true);
+            if (!validationResult.IsValid)
             {
-                _logger.Error(vex, $"Failed to add Product: {product.Sku} due to validation issues");
-
-                //TODO Map ValidationResult into ModelStateDictionary
-                return BadRequest();
+                _logger.Info($"Failed to add Product: {product.Sku} due to validation issues");
+                return BadRequest(validationResult.Messages);
             }
+
+            var result = _productService.Add(product);
+            //TODO Get url dynamically
+            return Created($"/be-api/products/{result}", product);
         }
+
+        [HttpPut]
+        [Route("/be-api/product/{id}")]
+        public ActionResult Update(int id, [FromBody] Product product)
+        {
+            Guard.AgainstNull(product, nameof(product));
+            product.Id = id;
+
+            var validationResult = _productService.Validate(product, requireUniqueSku:false);
+            if (!validationResult.IsValid)
+            {
+                _logger.Info($"Failed to update Product: {product.Sku} due to validation issues");
+                return BadRequest(validationResult.Messages);
+            }
+
+            var result = _productService.Update(product);
+            return NoContent();
+        }
+        
+        
     }
 }

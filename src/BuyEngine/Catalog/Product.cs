@@ -1,4 +1,5 @@
-﻿using BuyEngine.Catalog.Suppliers;
+﻿using BuyEngine.Catalog.Brands;
+using BuyEngine.Catalog.Suppliers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

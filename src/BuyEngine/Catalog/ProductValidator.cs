@@ -16,20 +16,27 @@ namespace BuyEngine.Catalog
 
         public ValidationResult Validate(Product product)
         {
+            return Validate(product, requireUniqueSku: true);
+        }
+
+        public ValidationResult Validate(Product product, bool requireUniqueSku)
+        {
             var result = new ValidationResult();
 
             if (string.IsNullOrWhiteSpace(product.Sku))
                 result.AddMessage(nameof(product.Sku), "Product SKU is Required");
-
-            var unique = IsSkuUnique(product.Sku);
-            if (!unique)
-                result.AddMessage(nameof(product.Sku), "Product SKU must be Unique");
 
             if (string.IsNullOrWhiteSpace(product.Name))
                 result.AddMessage(nameof(product.Name), "Product Name is Required");
             
             if(product.Price < decimal.Zero)
                 result.AddMessage(nameof(product.Price), $"Product {nameof(product.Price)} must be greater then or equal to zero");
+
+            if (!requireUniqueSku) return result;
+            
+            var unique = IsSkuUnique(product.Sku);
+            if (!unique)
+                result.AddMessage(nameof(product.Sku), "Product SKU must be Unique");
 
             return result;
         }
@@ -47,6 +54,7 @@ namespace BuyEngine.Catalog
 
     public interface IProductValidator : IModelValidator<Product>
     {
+        ValidationResult Validate(Product product, bool requireUniqueSku);
         bool IsSkuUnique(string sku);
         Task<bool> IsSkuUniqueAsync(string sku);
     }

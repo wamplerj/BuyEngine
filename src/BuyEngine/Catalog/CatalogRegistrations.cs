@@ -1,4 +1,5 @@
-﻿using BuyEngine.Catalog.Suppliers;
+﻿using BuyEngine.Catalog.Brands;
+using BuyEngine.Catalog.Suppliers;
 using BuyEngine.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,10 +17,10 @@ namespace BuyEngine.Catalog
             services.AddTransient<IProductValidator, ProductValidator>();
             services.AddTransient<ISupplierService, SupplierService>();
             services.AddTransient<IModelValidator<Supplier>, SupplierValidator>();
+            services.AddTransient<IBrandService, BrandService>();
+            services.AddTransient<IModelValidator<Brand>, BrandValidator>();
 
             return services;
         }
-
-
     }
 }

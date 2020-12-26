@@ -3,6 +3,6 @@
     public interface IModelValidator<in T>
     {
         bool IsValid(T t) => Validate(t).IsValid;
-        ValidationResult Validate(T t);
+        ValidationResult Validate(T brand);
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Threading;
 using System.Threading.Tasks;
+using BuyEngine.Catalog.Brands;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace BuyEngine.Catalog

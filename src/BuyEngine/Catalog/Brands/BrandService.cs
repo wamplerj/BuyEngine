@@ -1,6 +1,5 @@
 ﻿using BuyEngine.Common;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -61,11 +60,8 @@ namespace BuyEngine.Catalog.Brands
 
         public void Remove(Brand brand)
         {
-            if (brand == null)
-                throw new ArgumentNullException(nameof(brand), $"{nameof(brand)} can not be null");
-
-            if (brand.Id <= 0)
-                throw new ArgumentOutOfRangeException(nameof(brand.Id), $"{nameof(brand.Id)} must be greater then 0");
+            Guard.Null(brand, nameof(brand));
+            Guard.NegativeOrZero(brand.Id, nameof(brand.Id));            
 
             _catalogDbContext.Brands.Remove(brand);
             _catalogDbContext.SaveChanges();

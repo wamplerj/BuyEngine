@@ -70,7 +70,7 @@ namespace BuyEngine.Catalog
 
         public int Add(Product product)
         {
-            Guard.AgainstNull(product, nameof(product));
+            Guard.Null(product, nameof(product));
 
             var result = _productValidator.Validate(product);
             if (!result.IsValid)
@@ -84,7 +84,7 @@ namespace BuyEngine.Catalog
 
         public int Update(Product product)
         {
-            Guard.AgainstNull(product, nameof(product));
+            Guard.Null(product, nameof(product));
 
             var result = _productValidator.Validate(product, requireUniqueSku:false);
             if (!result.IsValid)
@@ -98,7 +98,7 @@ namespace BuyEngine.Catalog
 
         public void Remove(Product product)
         {
-            Guard.AgainstNull(product, nameof(product));
+            Guard.Null(product, nameof(product));
 
             _catalogDbContext.Products.Remove(product);
             _catalogDbContext.SaveChanges();
@@ -106,12 +106,14 @@ namespace BuyEngine.Catalog
 
         public void Remove(int productId)
         {
-            if (productId <= 0)
-                throw new ArgumentOutOfRangeException(nameof(productId), "ProductId must be greater then 0");
+            Guard.NegativeOrZero(productId, nameof(productId));
 
             var product = _catalogDbContext.Products.FirstOrDefault(p => p.Id == productId);
             if (product == null)
                 throw new ArgumentException("ProductId could not be found", nameof(productId));
+
+            _catalogDbContext.Products.Remove(product);
+            _catalogDbContext.SaveChanges();
         }
 
         public bool IsSkuUnique(string sku)

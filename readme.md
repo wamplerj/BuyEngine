@@ -7,3 +7,9 @@ BuyEngine is a .NET core library designed to add e-commerce functionality to new
 - Version 0.2 - Cart Management
 - Version 0.3 - Order Fulfillment
 - Version 0.4 - API Security and documentation
+
+- Version ???
+    L10N
+    Storage and Cache Providers
+    Tax Calulcators
+    

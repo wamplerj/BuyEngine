@@ -49,7 +49,8 @@ namespace BuyEngine.WebApi.Catalog
             }
             
             var id = _brandService.Add(brand);
-            return Created(Url.Action("Get", id), brand);
+            var url = Url.Action("Get", id);
+            return Created(url, brand);
         }
 
         [HttpPut]

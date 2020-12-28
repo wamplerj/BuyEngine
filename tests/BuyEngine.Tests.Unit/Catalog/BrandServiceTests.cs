@@ -1,5 +1,5 @@
 ﻿using BuyEngine.Catalog;
-using BuyEngine.Catalog.Suppliers;
+using BuyEngine.Catalog.Brands;
 using BuyEngine.Common;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BuyEngine.Catalog.Brands;
 
 namespace BuyEngine.Tests.Unit.Catalog
 {

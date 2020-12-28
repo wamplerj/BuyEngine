@@ -19,6 +19,7 @@ namespace BuyEngine.Catalog.Brands
         {
             builder.ToTable("Brands");
             builder.HasKey(b => b.Id);
+            builder.Property(b => b.Id).ValueGeneratedOnAdd();
             builder.Property(b => b.Name).HasMaxLength(200).IsRequired();
             builder.Property(b => b.WebsiteUrl).HasMaxLength(200);
             builder.Property(b => b.Notes).HasMaxLength(2000);

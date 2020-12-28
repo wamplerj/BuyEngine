@@ -61,7 +61,7 @@ namespace BuyEngine.WebApi.Catalog
         [Route("/be-api/products")]
         public ActionResult Add([FromBody] Product product)
         {
-            Guard.AgainstNull(product, nameof(product));
+            Guard.Null(product, nameof(product));
 
             var validationResult = _productService.Validate(product, requireUniqueSku:true);
             if (!validationResult.IsValid)
@@ -79,7 +79,7 @@ namespace BuyEngine.WebApi.Catalog
         [Route("/be-api/product/{id}")]
         public ActionResult Update(int id, [FromBody] Product product)
         {
-            Guard.AgainstNull(product, nameof(product));
+            Guard.Null(product, nameof(product));
             product.Id = id;
 
             var validationResult = _productService.Validate(product, requireUniqueSku:false);

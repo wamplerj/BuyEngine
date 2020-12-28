@@ -29,6 +29,7 @@ namespace BuyEngine.Catalog
         public void Configure(EntityTypeBuilder<Product> builder)
         {
             builder.HasKey(b => b.Id);
+            builder.Property(b => b.Id).ValueGeneratedOnAdd();
             builder.Property(b => b.Sku).HasMaxLength(100).IsRequired();
             builder.HasIndex(b => b.Sku).IsUnique();
             builder.Property(b => b.Name).HasMaxLength(200).IsRequired();

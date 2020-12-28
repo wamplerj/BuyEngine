@@ -17,10 +17,11 @@ namespace BuyEngine.Catalog.Suppliers
     {
         public void Configure(EntityTypeBuilder<Supplier> builder)
         {
-            builder.HasKey(b => b.Id);
-            builder.Property(b => b.Name).HasMaxLength(200).IsRequired();
-            builder.Property(b => b.WebsiteUrl).HasMaxLength(200);
-            builder.Property(b => b.Notes).HasMaxLength(2000);
+            builder.HasKey(s => s.Id);
+            builder.Property(s => s.Id).ValueGeneratedOnAdd();
+            builder.Property(s => s.Name).HasMaxLength(200).IsRequired();
+            builder.Property(s => s.WebsiteUrl).HasMaxLength(200);
+            builder.Property(s => s.Notes).HasMaxLength(2000);
             builder.HasData(
                 new Supplier { Id = 1, Name = "Apple",  WebsiteUrl = "https://www.apple.com"},
                 new Supplier { Id = 2, Name = "Samsung",  WebsiteUrl = "https://www.samsung.com/us" },

@@ -20,7 +20,7 @@ namespace BuyEngine.WebApi.Catalog
         }
 
         [HttpGet]
-        [Route("/be-api/products/{productId}")]
+        [Route("/be-api/product/{productId}")]
         public async Task<ActionResult> Get(int productId)
         {
             if (productId <= 0)
@@ -39,7 +39,7 @@ namespace BuyEngine.WebApi.Catalog
         }
 
         [HttpGet]
-        [Route("/be-api/products/sku/{sku}")]
+        [Route("/be-api/product/sku/{sku}")]
         public async Task<ActionResult> Get(string sku)
         {
             if (string.IsNullOrEmpty(sku))
@@ -58,7 +58,7 @@ namespace BuyEngine.WebApi.Catalog
         }
 
         [HttpPost]
-        [Route("/be-api/products")]
+        [Route("/be-api/product")]
         public ActionResult Add([FromBody] Product product)
         {
             Guard.Null(product, nameof(product));

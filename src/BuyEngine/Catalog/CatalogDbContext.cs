@@ -1,10 +1,10 @@
-﻿using BuyEngine.Catalog.Suppliers;
+﻿using BuyEngine.Catalog.Brands;
+using BuyEngine.Catalog.Suppliers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Threading;
 using System.Threading.Tasks;
-using BuyEngine.Catalog.Brands;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace BuyEngine.Catalog
 {
@@ -35,7 +35,6 @@ namespace BuyEngine.Catalog
         DbSet<Brand> Brands { get; set; }
         DbSet<Supplier> Suppliers { get; set; }
         
-
         DatabaseFacade Database { get; }
         EntityEntry Entry(object entity);
         int SaveChanges();

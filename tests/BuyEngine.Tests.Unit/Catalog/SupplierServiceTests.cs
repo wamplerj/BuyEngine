@@ -202,8 +202,7 @@ namespace BuyEngine.Tests.Unit.Catalog
 
             Assert.Pass();
         }
-
-
+        
         private IEnumerable<Supplier> GetSuppliersForPaging()
         {
             var suppliers = new List<Supplier>();

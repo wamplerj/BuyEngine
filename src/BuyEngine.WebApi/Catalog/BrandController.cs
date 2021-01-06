@@ -55,7 +55,7 @@ namespace BuyEngine.WebApi.Catalog
 
         [HttpPut]
         [Route("/be-api/products/brand")]
-        public ActionResult Update([FromBody] Brand brand)
+        public ActionResult Update(  [FromBody] Brand brand)
         {
             var result = _brandService.Validate(brand);
             if (!result.IsValid)
@@ -70,10 +70,9 @@ namespace BuyEngine.WebApi.Catalog
         }
 
         [HttpDelete]
-        [Route("/be-api/products/brands/{brandId}")]
+        [Route("/be-api/products/brand/{brandId}")]
         public ActionResult Delete(int brandId)
         {
-
             if (brandId <= 0)
             {
                 _logger.Info($"{brandId} is invalid.  Id must be >= 0");

@@ -41,36 +41,44 @@ namespace BuyEngine.Catalog.Brands
 
         public int Add(Brand brand)
         {
+            Guard.Null(brand, nameof(brand));
+
             var result = _validator.Validate(brand);
             if (!result.IsValid)
                 throw new ValidationException(result, nameof(brand));
 
             _catalogDbContext.Brands.Add(brand);
+            _catalogDbContext.SaveChanges();
             return brand.Id;
         }
 
         public void Update(Brand brand)
         {
+            Guard.Null(brand, nameof(brand));
+            
             var result = _validator.Validate(brand);
             if (!result.IsValid)
                 throw new ValidationException(result, nameof(brand));
 
             _catalogDbContext.Brands.Update(brand);
+            _catalogDbContext.SaveChanges();
         }
 
         public void Remove(Brand brand)
         {
             Guard.Null(brand, nameof(brand));
-            Guard.NegativeOrZero(brand.Id, nameof(brand.Id));            
-
+            Guard.NegativeOrZero(brand.Id, nameof(brand.Id));
+            
+            _catalogDbContext.Entry(brand).State = EntityState.Deleted;
             _catalogDbContext.Brands.Remove(brand);
             _catalogDbContext.SaveChanges();
         }
 
         public void Remove(int brandId)
         {
+            Guard.NegativeOrZero(brandId, nameof(brandId));
+            
             var brand = new Brand() {Id = brandId };
-            _catalogDbContext.Entry(brand).State = EntityState.Deleted;
             Remove(brand);
         }
 

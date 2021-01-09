@@ -2,6 +2,6 @@
 <RunSettings>
 	<TestRunParameters>
 		<Parameter name="apiBaseUrl" value="https://localhost:5001/be-api/" />
-		<Parameter name="connectionString" value="Server=.\\;Database=BuyEngine;Trusted_Connection=True;MultipleActiveResultSets=true" />
+		<Parameter name="connectionString" value="Server=.;Database=BuyEngine;Trusted_Connection=True;MultipleActiveResultSets=true" />
 	</TestRunParameters>
 </RunSettings>

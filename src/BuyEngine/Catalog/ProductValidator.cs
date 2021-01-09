@@ -1,6 +1,5 @@
 ﻿using BuyEngine.Common;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Threading.Tasks;
 
 namespace BuyEngine.Catalog
@@ -48,7 +47,7 @@ namespace BuyEngine.Catalog
 
         public async Task<bool> IsSkuUniqueAsync(string sku)
         {
-            return await _catalogDbContext.Products.AnyAsync(p => p.Sku.Equals(sku, StringComparison.OrdinalIgnoreCase)).ContinueWith(n => !n.Result);
+            return await _catalogDbContext.Products.AnyAsync(p => p.Sku.Equals(sku)).ContinueWith(n => !n.Result);
         }
     }
 

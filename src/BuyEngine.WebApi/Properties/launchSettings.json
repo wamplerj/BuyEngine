@@ -20,7 +20,7 @@
     "BuyEngine.WebApi": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "be-api/products/1",
+      "launchUrl": "be-api/product/1",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

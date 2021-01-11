@@ -4,12 +4,12 @@
     <TargetFramework>net5.0</TargetFramework>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://www.buyengine.net</PackageProjectUrl>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Copyright />
     <RepositoryUrl>https://github.com/wamplerj/buyengine</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>ecommerce, shopping, cart</PackageTags>
     <Description>BuyEngine is an open source library for adding e-commerce functionality to new or existing .NET projects.</Description>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

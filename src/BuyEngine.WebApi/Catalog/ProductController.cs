@@ -1,6 +1,7 @@
 ﻿using BuyEngine.Catalog;
 using BuyEngine.Common;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using NLog;
 using System.Threading.Tasks;
 
@@ -31,8 +32,12 @@ namespace BuyEngine.WebApi.Catalog
 
             var product = await _productService.GetAsync(productId);
 
-            if (product != null) 
+            if (product != null)
+            {
+                _logger.Info($"Product: {productId} was found");
+                _logger.Debug(JsonConvert.SerializeObject(product));
                 return Ok(product);
+            }
 
             _logger.Info($"ProductId: {productId} was not found.");
             return NotFound($"ProductId: {productId} was not found");

@@ -3,17 +3,18 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BuyEngine.Persistence;
 
 namespace BuyEngine.Catalog.Brands
 {
     public class BrandService : IBrandService
     {
-        private readonly ICatalogDbContext _catalogDbContext;
+        private readonly IStoreDbContext _storeDbContext;
         private readonly IModelValidator<Brand> _validator;
 
-        public BrandService(ICatalogDbContext catalogDbContext, IModelValidator<Brand> validator)
+        public BrandService(IStoreDbContext storeDbContext, IModelValidator<Brand> validator)
         {
-            _catalogDbContext = catalogDbContext;
+            _storeDbContext = storeDbContext;
             _validator = validator;
         }
 
@@ -24,7 +25,7 @@ namespace BuyEngine.Catalog.Brands
 
         public async Task<Brand> GetAsync(int brandId)
         {
-            return await _catalogDbContext.Brands.FindAsync(brandId);
+            return await _storeDbContext.Brands.FindAsync(brandId);
         }
 
         public IList<Brand> GetAll(int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
@@ -36,7 +37,7 @@ namespace BuyEngine.Catalog.Brands
         {
             var skip = (page * pageSize);
 
-            return await _catalogDbContext.Brands.Skip(skip).Take(pageSize).ToListAsync();
+            return await _storeDbContext.Brands.Skip(skip).Take(pageSize).ToListAsync();
         }
 
         public int Add(Brand brand)
@@ -47,8 +48,8 @@ namespace BuyEngine.Catalog.Brands
             if (!result.IsValid)
                 throw new ValidationException(result, nameof(brand));
 
-            _catalogDbContext.Brands.Add(brand);
-            _catalogDbContext.SaveChanges();
+            _storeDbContext.Brands.Add(brand);
+            _storeDbContext.SaveChanges();
             return brand.Id;
         }
 
@@ -60,8 +61,8 @@ namespace BuyEngine.Catalog.Brands
             if (!result.IsValid)
                 throw new ValidationException(result, nameof(brand));
 
-            _catalogDbContext.Brands.Update(brand);
-            _catalogDbContext.SaveChanges();
+            _storeDbContext.Brands.Update(brand);
+            _storeDbContext.SaveChanges();
         }
 
         public void Remove(Brand brand)
@@ -69,9 +70,9 @@ namespace BuyEngine.Catalog.Brands
             Guard.Null(brand, nameof(brand));
             Guard.NegativeOrZero(brand.Id, nameof(brand.Id));
             
-            _catalogDbContext.Entry(brand).State = EntityState.Deleted;
-            _catalogDbContext.Brands.Remove(brand);
-            _catalogDbContext.SaveChanges();
+            _storeDbContext.Entry(brand).State = EntityState.Deleted;
+            _storeDbContext.Brands.Remove(brand);
+            _storeDbContext.SaveChanges();
         }
 
         public void Remove(int brandId)

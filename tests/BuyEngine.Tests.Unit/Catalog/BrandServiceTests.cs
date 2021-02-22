@@ -7,20 +7,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BuyEngine.Persistence;
 
 namespace BuyEngine.Tests.Unit.Catalog
 {
     public class BrandServiceTests
     {
-        private CatalogDbContext _catalogDbContext;
+        private StoreDbContext _catalogDbContext;
         private BrandService _brandService;
 
         [SetUp]
         public void SetUp()
         {
-            var options = new DbContextOptionsBuilder<CatalogDbContext>()
+            var options = new DbContextOptionsBuilder<StoreDbContext>()
                 .UseInMemoryDatabase($"{nameof(BrandServiceTests)}-{Guid.NewGuid()}").Options;
-            _catalogDbContext = new CatalogDbContext(options);
+            _catalogDbContext = new StoreDbContext(options);
 
             _brandService = new BrandService(_catalogDbContext, new BrandValidator());
         }

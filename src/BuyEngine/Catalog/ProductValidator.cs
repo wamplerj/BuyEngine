@@ -1,16 +1,17 @@
 ﻿using BuyEngine.Common;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using BuyEngine.Persistence;
 
 namespace BuyEngine.Catalog
 {
     public class ProductValidator: IProductValidator
     {
-        private readonly ICatalogDbContext _catalogDbContext;
+        private readonly IStoreDbContext _storeDbContext;
 
-        public ProductValidator(ICatalogDbContext catalogDbContext)
+        public ProductValidator(IStoreDbContext storeDbContext)
         {
-            _catalogDbContext = catalogDbContext;
+            _storeDbContext = storeDbContext;
         }
 
         public ValidationResult Validate(Product product)
@@ -47,7 +48,7 @@ namespace BuyEngine.Catalog
 
         public async Task<bool> IsSkuUniqueAsync(string sku)
         {
-            return await _catalogDbContext.Products.AnyAsync(p => p.Sku.Equals(sku)).ContinueWith(n => !n.Result);
+            return await _storeDbContext.Products.AnyAsync(p => p.Sku.Equals(sku)).ContinueWith(n => !n.Result);
         }
     }
 

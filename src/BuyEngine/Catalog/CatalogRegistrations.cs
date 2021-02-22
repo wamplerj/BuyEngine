@@ -1,6 +1,7 @@
 ﻿using BuyEngine.Catalog.Brands;
 using BuyEngine.Catalog.Suppliers;
 using BuyEngine.Common;
+using BuyEngine.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,8 +12,8 @@ namespace BuyEngine.Catalog
 
         public static IServiceCollection AddCatalogServices(this IServiceCollection services)
         {
-            services.AddDbContext<CatalogDbContext>(opt => opt.UseInMemoryDatabase("BE-Dev"));
-            services.AddScoped<ICatalogDbContext, CatalogDbContext>();
+            services.AddDbContext<StoreDbContext>(opt => opt.UseInMemoryDatabase("BE-Dev"));
+            services.AddScoped<IStoreDbContext, StoreDbContext>();
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IProductValidator, ProductValidator>();
             services.AddTransient<ISupplierService, SupplierService>();

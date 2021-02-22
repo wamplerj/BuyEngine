@@ -28,7 +28,6 @@
 
   <ItemGroup>
     <Folder Include="Fullfillment\" />
-    <Folder Include="Checkout\" />
   </ItemGroup>
 
 </Project>

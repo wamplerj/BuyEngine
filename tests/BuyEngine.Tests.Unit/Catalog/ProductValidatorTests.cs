@@ -3,19 +3,20 @@ using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using System;
 using System.Linq;
+using BuyEngine.Persistence;
 
 namespace BuyEngine.Tests.Unit.Catalog
 {
     public class ProductValidatorTests
     {
-        private CatalogDbContext _catalogDbContext;
+        private StoreDbContext _catalogDbContext;
         private ProductValidator _validator;
 
         [SetUp]
         public void Setup()
         {
-            var options = new DbContextOptionsBuilder<CatalogDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-            _catalogDbContext = new CatalogDbContext(options);
+            var options = new DbContextOptionsBuilder<StoreDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+            _catalogDbContext = new StoreDbContext(options);
 
             _validator = new ProductValidator(_catalogDbContext);
         }

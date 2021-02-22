@@ -1,4 +1,6 @@
 using BuyEngine.Catalog;
+using BuyEngine.Checkout;
+using BuyEngine.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -19,8 +21,8 @@ namespace BuyEngine.WebApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //TODO Load ConnectionString Name from CatalogConfiguration
-            services.AddDbContext<CatalogDbContext>(options =>
+            //TODO Load ConnectionString Name from Configuration
+            services.AddDbContext<StoreDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("BuyEngine"),
                     b => b.MigrationsAssembly("BuyEngine")));
 
@@ -30,6 +32,7 @@ namespace BuyEngine.WebApi
 
             services.AddControllers();
             services.AddCatalogServices();
+            services.AddCheckoutServices();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

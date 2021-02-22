@@ -35,5 +35,11 @@ namespace BuyEngine.Common
             if (value <= 0)
                 throw new ArgumentOutOfRangeException($"{nameof(parameterName)} must be a positive number greater then zero", parameterName);
         }
+
+        public static void Default<T>(T value, string parameterName)
+        {
+            if (EqualityComparer<T>.Default.Equals(value, default))
+                throw new ArgumentException($"{nameof(parameterName)} can not be a default value", parameterName);
+        }
     }
 }

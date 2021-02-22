@@ -1,14 +1,16 @@
-﻿using BuyEngine.Catalog.Brands;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using BuyEngine.Catalog;
+using BuyEngine.Catalog.Brands;
 using BuyEngine.Catalog.Suppliers;
+using BuyEngine.Checkout;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace BuyEngine.Catalog
+namespace BuyEngine.Persistence
 {
-    public class CatalogDbContext : DbContext, ICatalogDbContext
+    public class StoreDbContext : DbContext, IStoreDbContext
     {
 
         public DbSet<Product> Products { get; set; }
@@ -16,7 +18,9 @@ namespace BuyEngine.Catalog
         public DbSet<Brand> Brands { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
 
-        public CatalogDbContext(DbContextOptions<CatalogDbContext> options) : base(options) { }
+        public DbSet<Cart> Carts { get; set; }
+
+        public StoreDbContext(DbContextOptions<StoreDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,15 +30,18 @@ namespace BuyEngine.Catalog
             modelBuilder.ApplyConfiguration(new BrandTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ProductTypeConfiguration());
             modelBuilder.ApplyConfiguration(new SupplierTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new CartTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new CartItemTypeConfiguration());
         }
     }
 
-    public interface ICatalogDbContext
+    public interface IStoreDbContext
     {
         DbSet<Product> Products { get; set; }
         DbSet<Brand> Brands { get; set; }
         DbSet<Supplier> Suppliers { get; set; }
-        
+        public DbSet<Cart> Carts { get; set; }
+
         DatabaseFacade Database { get; }
         EntityEntry Entry(object entity);
         int SaveChanges();

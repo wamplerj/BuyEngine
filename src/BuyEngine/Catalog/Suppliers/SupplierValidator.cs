@@ -1,10 +1,11 @@
-﻿using BuyEngine.Common;
+﻿using System.Threading.Tasks;
+using BuyEngine.Common;
 
 namespace BuyEngine.Catalog.Suppliers
 {
     public class SupplierValidator : IModelValidator<Supplier>
     {
-        public ValidationResult Validate(Supplier brand)
+        public async Task<ValidationResult> ValidateAsync(Supplier brand)
         {
             var result = new ValidationResult();
 

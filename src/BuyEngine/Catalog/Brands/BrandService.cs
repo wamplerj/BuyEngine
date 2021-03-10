@@ -1,112 +1,92 @@
 ﻿using BuyEngine.Common;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using BuyEngine.Persistence;
 
 namespace BuyEngine.Catalog.Brands
 {
     public class BrandService : IBrandService
     {
-        private readonly IStoreDbContext _storeDbContext;
+        private readonly IBrandRepository _brandRepository;
         private readonly IModelValidator<Brand> _validator;
 
-        public BrandService(IStoreDbContext storeDbContext, IModelValidator<Brand> validator)
+        public BrandService(IBrandRepository brandRepository, IModelValidator<Brand> validator)
         {
-            _storeDbContext = storeDbContext;
+            _brandRepository = brandRepository;
             _validator = validator;
-        }
-
-        public Brand Get(int brandId)
-        {
-            return GetAsync(brandId).Result;
         }
 
         public async Task<Brand> GetAsync(int brandId)
         {
-            return await _storeDbContext.Brands.FindAsync(brandId);
-        }
-
-        public IList<Brand> GetAll(int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
-        {
-            return GetAllAsync(pageSize, page).Result;
+            return await _brandRepository.GetAsync(brandId);
         }
         
         public async Task<IList<Brand>> GetAllAsync(int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
         {
-            var skip = (page * pageSize);
-
-            return await _storeDbContext.Brands.Skip(skip).Take(pageSize).ToListAsync();
+            return await _brandRepository.GetAllAsync(pageSize, page);
         }
 
-        public int Add(Brand brand)
+        public async Task<int> AddAsync(Brand brand)
         {
             Guard.Null(brand, nameof(brand));
 
-            var result = _validator.Validate(brand);
+            var result = await _validator.ValidateAsync(brand);
             if (!result.IsValid)
                 throw new ValidationException(result, nameof(brand));
 
-            _storeDbContext.Brands.Add(brand);
-            _storeDbContext.SaveChanges();
-            return brand.Id;
+            var id = await _brandRepository.AddAsync(brand);
+            return id;
         }
 
-        public void Update(Brand brand)
+        public async Task<bool> UpdateAsync(Brand brand)
         {
             Guard.Null(brand, nameof(brand));
             
-            var result = _validator.Validate(brand);
+            var result = await _validator.ValidateAsync(brand);
             if (!result.IsValid)
                 throw new ValidationException(result, nameof(brand));
 
-            _storeDbContext.Brands.Update(brand);
-            _storeDbContext.SaveChanges();
+            var success = await _brandRepository.UpdateAsync(brand);
+            return success;
         }
 
-        public void Remove(Brand brand)
+        public async Task RemoveAsync(Brand brand)
         {
             Guard.Null(brand, nameof(brand));
             Guard.NegativeOrZero(brand.Id, nameof(brand.Id));
             
-            _storeDbContext.Entry(brand).State = EntityState.Deleted;
-            _storeDbContext.Brands.Remove(brand);
-            _storeDbContext.SaveChanges();
+            await _brandRepository.RemoveAsync(brand);
         }
 
-        public void Remove(int brandId)
+        public async Task RemoveAsync(int brandId)
         {
             Guard.NegativeOrZero(brandId, nameof(brandId));
-            
-            var brand = new Brand() {Id = brandId };
-            Remove(brand);
+            var brand = await GetAsync(brandId);
+
+            await RemoveAsync(brand);
         }
 
-        public bool IsValid(Brand brand)
+        public async Task<bool> IsValidAsync(Brand brand)
         {
-            var result = Validate(brand);
+            var result = await ValidateAsync(brand);
             return result.IsValid;
         }
 
-        public ValidationResult Validate(Brand brand)
+        public async Task<ValidationResult> ValidateAsync (Brand brand)
         {
-            return _validator.Validate(brand);
+            return await _validator.ValidateAsync(brand);
         }
     }
 
     public interface IBrandService
     {
-        Brand Get(int brandId);
         Task<Brand> GetAsync(int brandId);
-        IList<Brand> GetAll(int pageSize = 25, int page = 0);
         Task<IList<Brand>> GetAllAsync(int pageSize = 25, int page = 0);
-        int Add(Brand brand);
-        void Update(Brand brand);
-        void Remove(Brand brand);
-        void Remove(int brandId);
+        Task<int> AddAsync(Brand brand);
+        Task<bool> UpdateAsync(Brand brand);
+        Task RemoveAsync(Brand brand);
+        Task RemoveAsync(int brandId);
 
-        bool IsValid(Brand brand);
-        ValidationResult Validate(Brand brand);
+        Task<bool> IsValidAsync(Brand brand);
+        Task<ValidationResult> ValidateAsync(Brand brand);
     }
 }

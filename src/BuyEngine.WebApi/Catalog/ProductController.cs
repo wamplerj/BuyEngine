@@ -64,37 +64,37 @@ namespace BuyEngine.WebApi.Catalog
 
         [HttpPost]
         [Route("/be-api/product")]
-        public ActionResult Add([FromBody] Product product)
+        public async Task<ActionResult> Add([FromBody] Product product)
         {
             Guard.Null(product, nameof(product));
 
-            var validationResult = _productService.Validate(product, requireUniqueSku:true);
+            var validationResult = await _productService.ValidateAsync(product, requireUniqueSku:true);
             if (!validationResult.IsValid)
             {
                 _logger.Info($"Failed to add Product: {product.Sku} due to validation issues");
                 return BadRequest(validationResult.Messages);
             }
 
-            var result = _productService.Add(product);
+            var result = await _productService.AddAsync(product);
             //TODO Get url dynamically
             return Created($"/be-api/products/{result}", product);
         }
 
         [HttpPut]
         [Route("/be-api/product/{id}")]
-        public ActionResult Update(int id, [FromBody] Product product)
+        public async Task<ActionResult> Update(int id, [FromBody] Product product)
         {
             Guard.Null(product, nameof(product));
             product.Id = id;
 
-            var validationResult = _productService.Validate(product, requireUniqueSku:false);
+            var validationResult = await _productService.ValidateAsync(product, requireUniqueSku:false);
             if (!validationResult.IsValid)
             {
                 _logger.Info($"Failed to update Product: {product.Sku} due to validation issues");
                 return BadRequest(validationResult.Messages);
             }
 
-            var result = _productService.Update(product);
+            var result = await _productService.UpdateAsync(product);
             return NoContent();
         }
         

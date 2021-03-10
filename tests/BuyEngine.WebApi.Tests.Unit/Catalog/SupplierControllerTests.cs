@@ -7,6 +7,7 @@ using Moq;
 using NUnit.Framework;
 using System;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace BuyEngine.WebApi.Tests.Unit.Catalog
 {
@@ -24,31 +25,31 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
         }
 
         [Test]
-        public void Getting_A_Valid_Supplier_ById_Returns_Ok()
+        public async Task Getting_A_Valid_Supplier_ById_Returns_Ok()
         {
             _supplierService.Setup(ps => ps.GetAsync(1)).ReturnsAsync(new Supplier() {Id = 1});
 
-            var result = _controller.Get(1).Result;
+            var result = await _controller.Get(1);
             Assert.That(result, Is.TypeOf<OkObjectResult>());
         }
 
         [Test]
-        public void Getting_An_Invalid_Supplier_ById_Returns_BadRequest()
+        public async Task Getting_An_Invalid_Supplier_ById_Returns_BadRequest()
         {
-            var result = _controller.Get(0).Result;
+            var result = await _controller.Get(0);
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
 
         [Test]
-        public void Getting_An_Unknown_Supplier_ById_Returns_NotFound()
+        public async Task Getting_An_Unknown_Supplier_ById_Returns_NotFound()
         {
             _supplierService.Setup(ps => ps.GetAsync(1)).ReturnsAsync(null as Supplier);
-            var result = _controller.Get(123).Result;
+            var result = await _controller.Get(123);
             Assert.That(result, Is.TypeOf<NotFoundObjectResult>());
         }
 
         [Test]
-        public void Creating_A_Valid_Supplier_Returns_Created()
+        public async Task Creating_A_Valid_Supplier_Returns_Created()
         {
 
             var mockUrlHelper = new Mock<IUrlHelper>(MockBehavior.Strict);
@@ -58,16 +59,16 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
 
             _controller.Url = mockUrlHelper.Object;
             
-            _supplierService.Setup(ps => ps.Add(It.IsAny<Supplier>())).Returns(1);
-            _supplierService.Setup(ss => ss.Validate(It.IsAny<Supplier>())).Returns(new ValidationResult() { });
+            _supplierService.Setup(ps => ps.AddAsync(It.IsAny<Supplier>())).ReturnsAsync(1);
+            _supplierService.Setup(ss => ss.ValidateAsync(It.IsAny<Supplier>())).ReturnsAsync(new ValidationResult() { });
 
-            var result = _controller.Add(new Supplier());
+            var result = await _controller.Add(new Supplier());
             Assert.That(result, Is.TypeOf<CreatedResult>());
-            _supplierService.Verify(ss => ss.Add(It.IsAny<Supplier>()), Times.Once);
+            _supplierService.Verify(ss => ss.AddAsync(It.IsAny<Supplier>()), Times.Once);
         }
 
         [Test]
-        public void Creating_An_Invalid_Supplier_Returns_BadRequest()
+        public async Task Creating_An_Invalid_Supplier_Returns_BadRequest()
         {
 
             var mockUrlHelper = new Mock<IUrlHelper>(MockBehavior.Strict);
@@ -82,16 +83,16 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
                 Messages = {{"Bad Value", "Oops"}}
             };
 
-            _supplierService.Setup(ps => ps.Add(It.IsAny<Supplier>())).Returns(1);
-            _supplierService.Setup(ss => ss.Validate(It.IsAny<Supplier>())).Returns(validationResult);
+            _supplierService.Setup(ps => ps.AddAsync(It.IsAny<Supplier>())).ReturnsAsync(1);
+            _supplierService.Setup(ss => ss.ValidateAsync(It.IsAny<Supplier>())).ReturnsAsync(validationResult);
 
-            var result = _controller.Add(new Supplier());
+            var result = await _controller.Add(new Supplier());
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
-            _supplierService.Verify(ss => ss.Add(It.IsAny<Supplier>()), Times.Never);
+            _supplierService.Verify(ss => ss.AddAsync(It.IsAny<Supplier>()), Times.Never);
         }
 
         [Test]
-        public void Updating_A_Valid_Supplier_Returns_Ok()
+        public async Task Updating_A_Valid_Supplier_Returns_Ok()
         {
 
             var mockUrlHelper = new Mock<IUrlHelper>(MockBehavior.Strict);
@@ -101,16 +102,16 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
 
             _controller.Url = mockUrlHelper.Object;
 
-            _supplierService.Setup(ps => ps.Update(It.IsAny<Supplier>()));
-            _supplierService.Setup(ss => ss.Validate(It.IsAny<Supplier>())).Returns(new ValidationResult() { });
+            _supplierService.Setup(ps => ps.UpdateAsync(It.IsAny<Supplier>()));
+            _supplierService.Setup(ss => ss.ValidateAsync(It.IsAny<Supplier>())).ReturnsAsync(new ValidationResult() { });
 
-            var result = _controller.Update(new Supplier());
+            var result = await _controller.Update(new Supplier());
             Assert.That(result, Is.TypeOf<OkObjectResult>());
-            _supplierService.Verify(ss => ss.Update(It.IsAny<Supplier>()), Times.Once);
+            _supplierService.Verify(ss => ss.UpdateAsync(It.IsAny<Supplier>()), Times.Once);
         }
 
         [Test]
-        public void Updating_An_Invalid_Supplier_Returns_BadRequest()
+        public async Task Updating_An_Invalid_Supplier_Returns_BadRequest()
         {
 
             var mockUrlHelper = new Mock<IUrlHelper>(MockBehavior.Strict);
@@ -125,12 +126,12 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
                 Messages = { { "Bad Value", "Oops" } }
             };
 
-            _supplierService.Setup(ps => ps.Add(It.IsAny<Supplier>())).Returns(1);
-            _supplierService.Setup(ss => ss.Validate(It.IsAny<Supplier>())).Returns(validationResult);
+            _supplierService.Setup(ps => ps.AddAsync(It.IsAny<Supplier>())).ReturnsAsync(1);
+            _supplierService.Setup(ss => ss.ValidateAsync(It.IsAny<Supplier>())).ReturnsAsync(validationResult);
 
-            var result = _controller.Update(new Supplier());
+            var result = await _controller.Update(new Supplier());
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
-            _supplierService.Verify(ss => ss.Update(It.IsAny<Supplier>()), Times.Never);
+            _supplierService.Verify(ss => ss.UpdateAsync(It.IsAny<Supplier>()), Times.Never);
         }
     }
 }

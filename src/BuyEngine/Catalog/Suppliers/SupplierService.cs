@@ -1,66 +1,52 @@
 ﻿using BuyEngine.Common;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using BuyEngine.Persistence;
 
 namespace BuyEngine.Catalog.Suppliers
 {
     public class SupplierService : ISupplierService
     {
-        private readonly IStoreDbContext _storeDbContext;
+        private readonly ISupplierRepository _supplierRepository;
         private readonly IModelValidator<Supplier> _validator;
 
-        public SupplierService(IStoreDbContext storeDbContext, IModelValidator<Supplier> validator)
+        public SupplierService(ISupplierRepository supplierRepository, IModelValidator<Supplier> validator)
         {
-            _storeDbContext = storeDbContext;
+            _supplierRepository = supplierRepository;
             _validator = validator;
-        }
-
-        public Supplier Get(int supplierId)
-        {
-            return GetAsync(supplierId).Result;
         }
 
         public async Task<Supplier> GetAsync(int supplierId)
         {
-            return await _storeDbContext.Suppliers.FindAsync(supplierId);
-        }
-
-        public IList<Supplier> GetAll(int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
-        {
-            return GetAllAsync(pageSize, page).Result;
+            return await _supplierRepository.GetAsync(supplierId);
         }
         
         public async Task<IList<Supplier>> GetAllAsync(int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
         {
-            var skip = (page * pageSize);
-
-            return await _storeDbContext.Suppliers.Skip(skip).Take(pageSize).ToListAsync();
+            return await _supplierRepository.GetAllAsync(pageSize, page);
         }
 
-        public int Add(Supplier supplier)
+        public async Task<int> AddAsync(Supplier supplier)
         {
-            var result = _validator.Validate(supplier);
+            var result = await _validator.ValidateAsync(supplier);
             if (!result.IsValid)
                 throw new ValidationException(result, nameof(supplier));
 
-            _storeDbContext.Suppliers.Add(supplier);
-            return supplier.Id;
+            var id = await _supplierRepository.AddAsync(supplier);
+            return id;
         }
 
-        public void Update(Supplier supplier)
+        public async Task<bool> UpdateAsync(Supplier supplier)
         {
-            var result = _validator.Validate(supplier);
+            var result = await _validator.ValidateAsync(supplier);
             if (!result.IsValid)
                 throw new ValidationException(result, nameof(supplier));
 
-            _storeDbContext.Suppliers.Update(supplier);
+            var success = await _supplierRepository.UpdateAsync(supplier);
+            return success;
         }
 
-        public void Remove(Supplier supplier)
+        public async Task RemoveAsync(Supplier supplier)
         {
             if (supplier == null)
                 throw new ArgumentNullException(nameof(supplier), "Product can not be null");
@@ -68,41 +54,37 @@ namespace BuyEngine.Catalog.Suppliers
             if (supplier.Id <= 0)
                 throw new ArgumentOutOfRangeException(nameof(supplier.Id), "Supplier.Id must be greater then 0");
 
-            _storeDbContext.Suppliers.Remove(supplier);
-            _storeDbContext.SaveChanges();
+            await _supplierRepository.RemoveAsync(supplier);
         }
 
-        public void Remove(int supplierId)
+        public async Task RemoveAsync(int supplierId)
         {
-            var supplier = new Supplier() {Id = supplierId};
-            _storeDbContext.Entry(supplier).State = EntityState.Deleted;
-            Remove(supplier);
+            var supplier = await GetAsync(supplierId);
+            await RemoveAsync(supplier);
         }
 
-        public bool IsValid(Supplier supplier)
+        public async Task<bool> IsValidAsync(Supplier supplier)
         {
-            var result = Validate(supplier);
+            var result = await ValidateAsync(supplier);
             return result.IsValid;
         }
 
-        public ValidationResult Validate(Supplier supplier)
+        public async Task<ValidationResult> ValidateAsync(Supplier supplier)
         {
-            return _validator.Validate(supplier);
+            return await _validator.ValidateAsync(supplier);
         }
     }
 
     public interface ISupplierService
     {
-        Supplier Get(int supplierId);
         Task<Supplier> GetAsync(int supplierId);
-        IList<Supplier> GetAll(int pageSize = 25, int page = 0);
         Task<IList<Supplier>> GetAllAsync(int pageSize = 25, int page = 0);
-        int Add(Supplier supplier);
-        void Update(Supplier supplier);
-        void Remove(Supplier supplier);
-        void Remove(int supplierId);
+        Task<int> AddAsync(Supplier supplier);
+        Task<bool> UpdateAsync(Supplier supplier);
+        Task RemoveAsync(Supplier supplier);
+        Task RemoveAsync(int supplierId);
 
-        bool IsValid(Supplier supplier);
-        ValidationResult Validate(Supplier supplier);
+        Task<bool> IsValidAsync(Supplier supplier);
+        Task<ValidationResult> ValidateAsync(Supplier supplier);
     }
 }

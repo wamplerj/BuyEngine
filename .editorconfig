@@ -53,3 +53,6 @@ resharper_redundant_base_qualifier_highlighting = warning
 resharper_suggest_var_or_type_built_in_types_highlighting = hint
 resharper_suggest_var_or_type_elsewhere_highlighting = hint
 resharper_suggest_var_or_type_simple_types_highlighting = hint
+
+# CS1998: Async method lacks 'await' operators and will run synchronously
+dotnet_diagnostic.CS1998.severity = silent

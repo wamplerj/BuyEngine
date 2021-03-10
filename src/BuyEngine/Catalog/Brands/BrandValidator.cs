@@ -1,10 +1,11 @@
-﻿using BuyEngine.Common;
+﻿using System.Threading.Tasks;
+using BuyEngine.Common;
 
 namespace BuyEngine.Catalog.Brands
 {
     public class BrandValidator : IModelValidator<Brand>
     {
-        public ValidationResult Validate(Brand brand)
+        public async Task<ValidationResult> ValidateAsync(Brand brand)
         {
             var result = new ValidationResult();
 

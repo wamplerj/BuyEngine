@@ -1,9 +1,7 @@
 using BuyEngine.Catalog;
 using BuyEngine.Checkout;
-using BuyEngine.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,10 +19,7 @@ namespace BuyEngine.WebApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //TODO Load ConnectionString Name from Configuration
-            services.AddDbContext<StoreDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("BuyEngine"),
-                    b => b.MigrationsAssembly("BuyEngine")));
+            //TODO Add Sql Data Configuration
 
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore

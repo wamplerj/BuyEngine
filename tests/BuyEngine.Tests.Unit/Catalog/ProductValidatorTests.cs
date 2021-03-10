@@ -1,29 +1,29 @@
-﻿using BuyEngine.Catalog;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Linq;
+using BuyEngine.Catalog;
+using Moq;
 using NUnit.Framework;
-using System;
-using System.Linq;
-using BuyEngine.Persistence;
+using System.Threading.Tasks;
 
 namespace BuyEngine.Tests.Unit.Catalog
 {
     public class ProductValidatorTests
     {
-        private StoreDbContext _catalogDbContext;
+        private Mock<IProductRepository> _productRepository;
         private ProductValidator _validator;
 
         [SetUp]
         public void Setup()
         {
-            var options = new DbContextOptionsBuilder<StoreDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-            _catalogDbContext = new StoreDbContext(options);
+            _productRepository = new Mock<IProductRepository>();
 
-            _validator = new ProductValidator(_catalogDbContext);
+            _validator = new ProductValidator(_productRepository.Object);
         }
 
         [Test]
-        public void A_Valid_Product_Returns_IsValid_And_Has_No_Messages()
+        public async Task A_Valid_Product_Returns_IsValid_And_Has_No_Messages()
         {
+            _productRepository.Setup(pr => pr.ExistsAsync(It.IsAny<string>())).ReturnsAsync(true);
+
             var product = new Product
             {
                 Sku = "ABC-123",
@@ -31,35 +31,34 @@ namespace BuyEngine.Tests.Unit.Catalog
             };
 
 
-            var result = _validator.Validate(product);
+            var result = await _validator.ValidateAsync(product);
             Assert.That(result.IsValid, Is.True);
             Assert.That(result.Messages, Is.Empty);
         }
 
         [Test]
-        public void A_Product_With_No_Sku_Fails_Validation()
+        public async Task A_Product_With_No_Sku_Fails_Validation()
         {
+            _productRepository.Setup(pr => pr.ExistsAsync(It.IsAny<string>())).ReturnsAsync(true);
+
             var product = new Product
             {
                 Name = "Test Product"
             };
 
-            var result = _validator.Validate(product);
+            var result = await _validator.ValidateAsync(product);
             Assert.That(result.IsValid, Is.False);
             Assert.That(result.Messages.Count, Is.EqualTo(1));
             Assert.That(result.Messages.First().Key, Is.EqualTo(nameof(product.Sku)));
         }
 
         [Test]
-        public void A_Product_Sku_Can_Be_Verified_Unique()
+        public async Task A_Product_Sku_Can_Be_Verified_Unique()
         {
-            var sku = "ABC-123";
+            _productRepository.Setup(pr => pr.ExistsAsync(It.IsAny<string>())).ReturnsAsync(true);
 
-            _catalogDbContext.Products.Add(new Product {Sku = sku});
-            _catalogDbContext.SaveChanges();
-
-            var result = _validator.IsSkuUnique(sku);
-            Assert.That(result, Is.False);
+            var result = await _validator.IsSkuUniqueAsync("sku");
+            _productRepository.Verify(pr => pr.ExistsAsync("sku"), Times.Once);
         }
     }
 }

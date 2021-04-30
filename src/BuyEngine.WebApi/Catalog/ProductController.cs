@@ -97,7 +97,5 @@ namespace BuyEngine.WebApi.Catalog
             var result = await _productService.UpdateAsync(product);
             return NoContent();
         }
-        
-        
     }
 }

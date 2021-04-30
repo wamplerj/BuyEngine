@@ -33,6 +33,11 @@ namespace BuyEngine.Catalog
             return await _productRepository.GetAllAsync(pageSize, page);
         }
 
+        public async Task<IList<Product>> GetAllByBrandAsync(int brandId, int pageSize, int page)
+        {
+            return await _productRepository.GetAllByBrandAsync(brandId, pageSize, page);
+        }
+
         public async Task<IList<Product>> GetAllBySupplierAsync(int supplierId, int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
         {
             return await _productRepository.GetAllBySupplierAsync(supplierId, pageSize, page);
@@ -95,6 +100,7 @@ namespace BuyEngine.Catalog
         Task<Product> GetAsync(int productId);
         Task<Product> GetAsync(string sku);
         Task<IList<Product>> GetAllAsync(int pageSize, int page);
+        Task<IList<Product>> GetAllByBrandAsync(int brandId, int pageSize, int page);
         Task<IList<Product>> GetAllBySupplierAsync(int supplierId, int pageSize, int page);
 
         Task<bool> IsSkuUniqueAsync(string sku);

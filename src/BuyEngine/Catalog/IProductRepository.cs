@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using BuyEngine.Common;
 
 namespace BuyEngine.Catalog
 {
@@ -7,9 +8,9 @@ namespace BuyEngine.Catalog
     {
         Task<Product> GetAsync(int productId);
         Task<Product> GetAsync(string sku);
-        Task<IList<Product>> GetAllAsync(int pageSize, int page);
-        Task<IList<Product>> GetAllBySupplierAsync(int supplierId, int pageSize, int page);
-        Task<IList<Product>> GetAllByBrandAsync(int brandId, int pageSize, int page);
+        Task<PagedList<Product>> GetAllAsync(int pageSize, int page);
+        Task<PagedList<Product>> GetAllBySupplierAsync(int supplierId, int pageSize, int page);
+        Task<PagedList<Product>> GetAllByBrandAsync(int brandId, int pageSize, int page);
 
         Task<int> AddAsync(Product product);
         Task<bool> UpdateAsync(Product product);

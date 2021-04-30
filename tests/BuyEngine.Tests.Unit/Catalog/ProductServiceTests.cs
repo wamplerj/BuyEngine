@@ -1,8 +1,8 @@
 using BuyEngine.Catalog;
+using BuyEngine.Common;
 using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BuyEngine.Tests.Unit.Catalog
@@ -56,7 +56,8 @@ namespace BuyEngine.Tests.Unit.Catalog
         [Test]
         public async Task Getting_All_Products_Async_Returns_Results()
         {
-            _productRepository.Setup(pr => pr.GetAllAsync(5, 0)).ReturnsAsync(new List<Product>());
+            _productRepository.Setup(pr => pr.GetAllAsync(5, 0))
+                .ReturnsAsync(new PagedList<Product>(new List<Product>(), 5, 1, 10));
             var result = await _productService.GetAllAsync(5, 0);
 
             _productRepository.Verify(pr => pr.GetAllAsync(5, 0), Times.Once);
@@ -65,12 +66,23 @@ namespace BuyEngine.Tests.Unit.Catalog
         [Test]
         public async Task Getting_All_Products_By_SupplierId_Async_Returns_First_Page_Only()
         {
-            _productRepository.Setup(pr => pr.GetAllBySupplierAsync(1, 5, 0)).ReturnsAsync(new List<Product>());
+            _productRepository.Setup(pr => pr.GetAllBySupplierAsync(1, 5, 0))
+                .ReturnsAsync(new PagedList<Product>(new List<Product>(), 5, 1, 10));
 
             var result = await _productService.GetAllBySupplierAsync(1, 5, 0);
             _productRepository.Verify(pr => pr.GetAllBySupplierAsync(1, 5, 0), Times.Once);
         }
-        
+
+        [Test]
+        public async Task Getting_All_Products_By_BrandId_Async_Returns_First_Page_Only()
+        {
+            _productRepository.Setup(pr => pr.GetAllByBrandAsync(1, 5, 0))
+                .ReturnsAsync(new PagedList<Product>(new List<Product>(), 5, 1, 10));
+
+            var result = await _productService.GetAllByBrandAsync(1, 5, 0);
+            _productRepository.Verify(pr => pr.GetAllByBrandAsync(1, 5, 0), Times.Once);
+        }
+
         [Test]
         public async Task Product_Sku_Can_Be_Verified_As_Unique_Async()
         {

@@ -1,4 +1,5 @@
-﻿using BuyEngine.Catalog.Suppliers;
+﻿using System;
+using BuyEngine.Catalog.Suppliers;
 using BuyEngine.Common;
 using Moq;
 using NUnit.Framework;
@@ -24,19 +25,21 @@ namespace BuyEngine.Tests.Unit.Catalog
         [Test]
         public async Task Getting_A_Known_Supplier_By_Id_Returns_Successfully()
         {
-            _supplierRepository.Setup(sr => sr.GetAsync(It.IsAny<int>())).ReturnsAsync(new Supplier());
-            var result = await _supplierService.GetAsync(1);
+            var id = Guid.NewGuid();
+            _supplierRepository.Setup(sr => sr.GetAsync(It.IsAny<Guid>())).ReturnsAsync(new Supplier());
+            var result = await _supplierService.GetAsync(id);
             
-            _supplierRepository.Verify(sr => sr.GetAsync(It.IsAny<int>()), Times.Once);
+            _supplierRepository.Verify(sr => sr.GetAsync(It.IsAny<Guid>()), Times.Once);
         }
 
         [Test]
         public async Task Getting_An_Unknown_Supplier_By_Id_Returns_Null()
         {
-            _supplierRepository.Setup(sr => sr.GetAsync(It.IsAny<int>())).ReturnsAsync((Supplier) null);
-            var result = await _supplierService.GetAsync(1);
+            var id = Guid.NewGuid();
+            _supplierRepository.Setup(sr => sr.GetAsync(It.IsAny<Guid>())).ReturnsAsync((Supplier) null);
+            var result = await _supplierService.GetAsync(id);
 
-            _supplierRepository.Verify(sr => sr.GetAsync(It.IsAny<int>()), Times.Once);
+            _supplierRepository.Verify(sr => sr.GetAsync(It.IsAny<Guid>()), Times.Once);
         }
 
         [Test]
@@ -106,7 +109,8 @@ namespace BuyEngine.Tests.Unit.Catalog
         [Test]
         public async Task Removing_An_Existing_Supplier_Succeeds()
         {
-            await _supplierService.RemoveAsync(new Supplier() {Id = 1});
+            var id = Guid.NewGuid();
+            await _supplierService.RemoveAsync(new Supplier() {Id = id});
             _supplierRepository.Verify(sr => sr.RemoveAsync(It.IsAny<Supplier>()), Times.Once);
 
         }
@@ -114,9 +118,10 @@ namespace BuyEngine.Tests.Unit.Catalog
         [Test]
         public async Task Removing_An_Existing_Supplier_By_Id_Succeeds()
         {
-            _supplierRepository.Setup(sr => sr.GetAsync(It.IsAny<int>())).ReturnsAsync(new Supplier() {Id = 1});
+            _supplierRepository.Setup(sr => sr.GetAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(new Supplier() {Id = Guid.NewGuid()});
 
-            await _supplierService.RemoveAsync(1);
+            await _supplierService.RemoveAsync(Guid.NewGuid());
             _supplierRepository.Verify(sr => sr.RemoveAsync(It.IsAny<Supplier>()), Times.Once);
         }
     }

@@ -1,6 +1,7 @@
 ﻿using BuyEngine.Catalog.Suppliers;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
+using System;
 using System.Threading.Tasks;
 
 namespace BuyEngine.WebApi.Catalog
@@ -20,9 +21,9 @@ namespace BuyEngine.WebApi.Catalog
 
         [HttpGet]
         [Route("{supplierId}:int")]
-        public async Task<ActionResult> Get(int supplierId)
+        public async Task<ActionResult> Get(Guid supplierId)
         {
-            if (supplierId <= 0)
+            if (supplierId == default)
             {
                 _logger.Info($"SupplierId is invalid.  Id must be >= 0");
                 return BadRequest($"{supplierId} is not a valid Supplier ID");
@@ -70,10 +71,10 @@ namespace BuyEngine.WebApi.Catalog
 
         [HttpDelete]
         [Route("/be-api/products/suppliers/{supplierId}")]
-        public async Task<ActionResult> Delete(int supplierId)
+        public async Task<ActionResult> Delete(Guid supplierId)
         {
 
-            if (supplierId <= 0)
+            if (supplierId == default)
             {
                 _logger.Info($"SupplierId is invalid.  Id must be >= 0");
                 return BadRequest($"{supplierId} is not a valid Supplier ID");

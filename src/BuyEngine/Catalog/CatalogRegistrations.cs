@@ -7,7 +7,6 @@ namespace BuyEngine.Catalog
 {
     public static class CatalogRegistrations
     {
-
         public static IServiceCollection AddCatalogServices(this IServiceCollection services)
         {
             services.AddTransient<IProductService, ProductService>();

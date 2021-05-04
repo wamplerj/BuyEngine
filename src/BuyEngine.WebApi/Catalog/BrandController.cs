@@ -1,4 +1,5 @@
-﻿using BuyEngine.Catalog.Brands;
+﻿using System;
+using BuyEngine.Catalog.Brands;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 using System.Threading.Tasks;
@@ -19,12 +20,12 @@ namespace BuyEngine.WebApi.Catalog
         }
 
         [HttpGet]
-        [Route("{brandId}:int")]
-        public async Task<ActionResult> Get(int brandId)
+        [Route("{brandId}:guid")]
+        public async Task<ActionResult> Get(Guid brandId)
         {
-            if (brandId <= 0)
+            if (brandId == default)
             {
-                _logger.Info($"BrandId is invalid.  Id must be >= 0");
+                _logger.Info($"BrandId is invalid.  Id must be a valid guid");
                 return BadRequest($"{brandId} is not a valid Brand ID");
             }
 
@@ -65,7 +66,6 @@ namespace BuyEngine.WebApi.Catalog
             }
 
             var success = await _brandService.UpdateAsync(brand);
-            //TODO Do we even need a boolean here?
 
             var url = Url.Action("Get", brand.Id);
             return Ok(url);
@@ -73,11 +73,11 @@ namespace BuyEngine.WebApi.Catalog
 
         [HttpDelete]
         [Route("/be-api/products/brand/{brandId}")]
-        public async Task<ActionResult> Delete(int brandId)
+        public async Task<ActionResult> Delete(Guid brandId)
         {
-            if (brandId <= 0)
+            if (brandId == default)
             {
-                _logger.Info($"{brandId} is invalid.  Id must be >= 0");
+                _logger.Info($"{brandId} is invalid.  Id must be a valid guid");
                 return BadRequest($"{brandId} is not a valid Brand ID");
             }
 

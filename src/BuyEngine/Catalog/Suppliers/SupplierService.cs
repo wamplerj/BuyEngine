@@ -16,7 +16,7 @@ namespace BuyEngine.Catalog.Suppliers
             _validator = validator;
         }
 
-        public async Task<Supplier> GetAsync(int supplierId)
+        public async Task<Supplier> GetAsync(Guid supplierId)
         {
             return await _supplierRepository.GetAsync(supplierId);
         }
@@ -51,13 +51,13 @@ namespace BuyEngine.Catalog.Suppliers
             if (supplier == null)
                 throw new ArgumentNullException(nameof(supplier), "Product can not be null");
 
-            if (supplier.Id <= 0)
-                throw new ArgumentOutOfRangeException(nameof(supplier.Id), "Supplier.Id must be greater then 0");
+            if (supplier.Id == default)
+                throw new ArgumentOutOfRangeException(nameof(supplier.Id), "Supplier.Id must be a valid Guid");
 
             await _supplierRepository.RemoveAsync(supplier);
         }
 
-        public async Task RemoveAsync(int supplierId)
+        public async Task RemoveAsync(Guid supplierId)
         {
             var supplier = await GetAsync(supplierId);
             await RemoveAsync(supplier);
@@ -77,12 +77,12 @@ namespace BuyEngine.Catalog.Suppliers
 
     public interface ISupplierService
     {
-        Task<Supplier> GetAsync(int supplierId);
+        Task<Supplier> GetAsync(Guid supplierId);
         Task<IList<Supplier>> GetAllAsync(int pageSize = 25, int page = 0);
         Task<int> AddAsync(Supplier supplier);
         Task<bool> UpdateAsync(Supplier supplier);
         Task RemoveAsync(Supplier supplier);
-        Task RemoveAsync(int supplierId);
+        Task RemoveAsync(Guid supplierId);
 
         Task<bool> IsValidAsync(Supplier supplier);
         Task<ValidationResult> ValidateAsync(Supplier supplier);

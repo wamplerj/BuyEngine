@@ -27,24 +27,26 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
         [Test]
         public async Task Getting_A_Valid_Supplier_ById_Returns_Ok()
         {
-            _supplierService.Setup(ps => ps.GetAsync(1)).ReturnsAsync(new Supplier() {Id = 1});
+            var id = Guid.NewGuid();
+            _supplierService.Setup(ps => ps.GetAsync(id)).ReturnsAsync(new Supplier() {Id = id});
 
-            var result = await _controller.Get(1);
+            var result = await _controller.Get(id);
             Assert.That(result, Is.TypeOf<OkObjectResult>());
         }
 
         [Test]
         public async Task Getting_An_Invalid_Supplier_ById_Returns_BadRequest()
         {
-            var result = await _controller.Get(0);
+            var result = await _controller.Get(Guid.Empty);
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
 
         [Test]
         public async Task Getting_An_Unknown_Supplier_ById_Returns_NotFound()
         {
-            _supplierService.Setup(ps => ps.GetAsync(1)).ReturnsAsync(null as Supplier);
-            var result = await _controller.Get(123);
+            var id = Guid.NewGuid();
+            _supplierService.Setup(ps => ps.GetAsync(id)).ReturnsAsync(null as Supplier);
+            var result = await _controller.Get(id);
             Assert.That(result, Is.TypeOf<NotFoundObjectResult>());
         }
 

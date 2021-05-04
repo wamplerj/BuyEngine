@@ -1,4 +1,5 @@
-﻿using BuyEngine.Catalog;
+﻿using System;
+using BuyEngine.Catalog;
 using BuyEngine.Common;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -22,9 +23,9 @@ namespace BuyEngine.WebApi.Catalog
 
         [HttpGet]
         [Route("/be-api/product/{productId}")]
-        public async Task<ActionResult> Get(int productId)
+        public async Task<ActionResult> Get(Guid productId)
         {
-            if (productId <= 0)
+            if (productId == default)
             {
                 _logger.Info($"ProductId is invalid.  Id must be >= 0");
                 return BadRequest($"{productId} is not a valid Product ID");
@@ -76,13 +77,12 @@ namespace BuyEngine.WebApi.Catalog
             }
 
             var result = await _productService.AddAsync(product);
-            //TODO Get url dynamically
             return Created($"/be-api/products/{result}", product);
         }
 
         [HttpPut]
         [Route("/be-api/product/{id}")]
-        public async Task<ActionResult> Update(int id, [FromBody] Product product)
+        public async Task<ActionResult> Update(Guid id, [FromBody] Product product)
         {
             Guard.Null(product, nameof(product));
             product.Id = id;

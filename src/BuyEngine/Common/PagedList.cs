@@ -37,8 +37,7 @@ namespace BuyEngine.Common
             Page = page;
             TotalCount = totalCount;
         }
-
-
+        
         public IEnumerator<T> GetEnumerator()
         {
             return _items.GetEnumerator();

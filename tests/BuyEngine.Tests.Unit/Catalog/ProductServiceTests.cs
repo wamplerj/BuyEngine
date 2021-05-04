@@ -2,6 +2,7 @@ using BuyEngine.Catalog;
 using BuyEngine.Common;
 using Moq;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -38,10 +39,11 @@ namespace BuyEngine.Tests.Unit.Catalog
         [Test]
         public async Task A_Product_Can_Be_Found_By_Id()
         {
-            _productRepository.Setup(pr => pr.GetAsync(It.IsAny<int>())).ReturnsAsync(new Product());
-            var result = await _productService.GetAsync(1);
+            var guid = Guid.NewGuid();
+            _productRepository.Setup(pr => pr.GetAsync(It.IsAny<Guid>())).ReturnsAsync(new Product());
+            var result = await _productService.GetAsync(guid);
 
-            _productRepository.Verify(pr => pr.GetAsync(1), Times.Once);
+            _productRepository.Verify(pr => pr.GetAsync(guid), Times.Once);
         }
 
         [Test]
@@ -66,21 +68,23 @@ namespace BuyEngine.Tests.Unit.Catalog
         [Test]
         public async Task Getting_All_Products_By_SupplierId_Async_Returns_First_Page_Only()
         {
-            _productRepository.Setup(pr => pr.GetAllBySupplierAsync(1, 5, 0))
+            var guid = Guid.NewGuid();
+            _productRepository.Setup(pr => pr.GetAllBySupplierAsync(guid, 5, 0))
                 .ReturnsAsync(new PagedList<Product>(new List<Product>(), 5, 1, 10));
 
-            var result = await _productService.GetAllBySupplierAsync(1, 5, 0);
-            _productRepository.Verify(pr => pr.GetAllBySupplierAsync(1, 5, 0), Times.Once);
+            var result = await _productService.GetAllBySupplierAsync(guid, 5, 0);
+            _productRepository.Verify(pr => pr.GetAllBySupplierAsync(guid, 5, 0), Times.Once);
         }
 
         [Test]
         public async Task Getting_All_Products_By_BrandId_Async_Returns_First_Page_Only()
         {
-            _productRepository.Setup(pr => pr.GetAllByBrandAsync(1, 5, 0))
+            var guid = Guid.NewGuid();
+            _productRepository.Setup(pr => pr.GetAllByBrandAsync(guid, 5, 0))
                 .ReturnsAsync(new PagedList<Product>(new List<Product>(), 5, 1, 10));
 
-            var result = await _productService.GetAllByBrandAsync(1, 5, 0);
-            _productRepository.Verify(pr => pr.GetAllByBrandAsync(1, 5, 0), Times.Once);
+            var result = await _productService.GetAllByBrandAsync(guid, 5, 0);
+            _productRepository.Verify(pr => pr.GetAllByBrandAsync(guid, 5, 0), Times.Once);
         }
 
         [Test]

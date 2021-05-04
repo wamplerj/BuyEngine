@@ -1,4 +1,5 @@
-﻿using BuyEngine.Common;
+﻿using System;
+using BuyEngine.Common;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -15,7 +16,7 @@ namespace BuyEngine.Catalog.Brands
             _validator = validator;
         }
 
-        public async Task<Brand> GetAsync(int brandId)
+        public async Task<Brand> GetAsync(Guid brandId)
         {
             return await _brandRepository.GetAsync(brandId);
         }
@@ -52,14 +53,14 @@ namespace BuyEngine.Catalog.Brands
         public async Task RemoveAsync(Brand brand)
         {
             Guard.Null(brand, nameof(brand));
-            Guard.NegativeOrZero(brand.Id, nameof(brand.Id));
+            Guard.Default(brand.Id, nameof(brand.Id));
             
             await _brandRepository.RemoveAsync(brand);
         }
 
-        public async Task RemoveAsync(int brandId)
+        public async Task RemoveAsync(Guid brandId)
         {
-            Guard.NegativeOrZero(brandId, nameof(brandId));
+            Guard.Default(brandId, nameof(brandId));
             var brand = await GetAsync(brandId);
 
             await RemoveAsync(brand);
@@ -79,12 +80,12 @@ namespace BuyEngine.Catalog.Brands
 
     public interface IBrandService
     {
-        Task<Brand> GetAsync(int brandId);
+        Task<Brand> GetAsync(Guid brandId);
         Task<IList<Brand>> GetAllAsync(int pageSize = 25, int page = 0);
         Task<int> AddAsync(Brand brand);
         Task<bool> UpdateAsync(Brand brand);
         Task RemoveAsync(Brand brand);
-        Task RemoveAsync(int brandId);
+        Task RemoveAsync(Guid brandId);
 
         Task<bool> IsValidAsync(Brand brand);
         Task<ValidationResult> ValidateAsync(Brand brand);

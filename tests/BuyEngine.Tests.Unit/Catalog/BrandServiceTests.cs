@@ -25,12 +25,14 @@ namespace BuyEngine.Tests.Unit.Catalog
         public async Task Getting_A_Known_Brand_By_Id_Returns_Successfully()
         {
 
-            _brandRepository.Setup(br => br.GetAsync(It.IsAny<int>())).ReturnsAsync(new Brand() {Id=1,Name = "Test", Notes = "TestNotes", WebsiteUrl = "http://someurl"});
+            var id = Guid.NewGuid();
+            _brandRepository.Setup(br => br.GetAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(new Brand() {Id=id,Name = "Test", Notes = "TestNotes", WebsiteUrl = "http://someurl"});
 
-            var result = await _brandService.GetAsync(1);
+            var result = await _brandService.GetAsync(id);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Id, Is.EqualTo(1));
+            Assert.That(result.Id, Is.EqualTo(id));
             Assert.That(result.Name, Is.EqualTo("Test"));
             Assert.That(result.Notes, Is.EqualTo("TestNotes"));
             Assert.That(result.WebsiteUrl, Is.EqualTo("http://someurl"));
@@ -39,7 +41,7 @@ namespace BuyEngine.Tests.Unit.Catalog
         [Test]
         public async Task Getting_An_Unknown_Brand_By_Id_Returns_Null()
         {
-            var result = await _brandService.GetAsync(1);
+            var result = await _brandService.GetAsync(Guid.NewGuid());
 
             Assert.That(result, Is.Null);
         }
@@ -114,16 +116,18 @@ namespace BuyEngine.Tests.Unit.Catalog
         [Test]
         public async Task Removing_An_Existing_Brand_Succeeds()
         {
-            await _brandService.RemoveAsync(new Brand() {Id = 1});
+            var id = Guid.NewGuid();
+            await _brandService.RemoveAsync(new Brand() {Id = id});
             _brandRepository.Verify(br => br.RemoveAsync(It.IsAny<Brand>()), Times.Once);
         }
 
         [Test]
         public async Task Removing_An_Existing_Brand_By_Id_Succeeds()
         {
-            _brandRepository.Setup(br => br.GetAsync(It.IsAny<int>())).ReturnsAsync(new Brand() {Id = 1});
+            var id = Guid.NewGuid();
+            _brandRepository.Setup(br => br.GetAsync(It.IsAny<Guid>())).ReturnsAsync(new Brand() {Id = id});
 
-            await _brandService.RemoveAsync(1);
+            await _brandService.RemoveAsync(id);
             _brandRepository.Verify(br => br.RemoveAsync(It.IsAny<Brand>()), Times.Once);
 
         }

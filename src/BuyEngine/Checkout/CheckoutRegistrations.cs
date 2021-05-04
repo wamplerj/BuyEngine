@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using BuyEngine.Common;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BuyEngine.Checkout
 {
@@ -8,6 +9,8 @@ namespace BuyEngine.Checkout
         public static IServiceCollection AddCheckoutServices(this IServiceCollection services)
         {
             services.AddTransient<ICartService, CartService>();
+            services.AddTransient<IModelValidator<Cart>, CartValidator>();
+
             return services;
         }
     }

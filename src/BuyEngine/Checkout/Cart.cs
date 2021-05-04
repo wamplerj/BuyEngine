@@ -9,6 +9,6 @@ namespace BuyEngine.Checkout
         public DateTime Created { get; set; }
         public DateTime Expires { get; set; }
 
-        public List<CartItem> Items { get; set; }
+        public List<CartItem> Items { get; set; } = new();
     }
 }

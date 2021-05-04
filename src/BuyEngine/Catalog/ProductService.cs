@@ -16,7 +16,7 @@ namespace BuyEngine.Catalog
             _productValidator = productValidator;
         }
 
-        public async Task<Product> GetAsync(int productId)
+        public async Task<Product> GetAsync(Guid productId)
         {
             var product = await _productRepository.GetAsync(productId);
 
@@ -33,12 +33,12 @@ namespace BuyEngine.Catalog
             return await _productRepository.GetAllAsync(pageSize, page);
         }
 
-        public async Task<IList<Product>> GetAllByBrandAsync(int brandId, int pageSize, int page)
+        public async Task<IList<Product>> GetAllByBrandAsync(Guid brandId, int pageSize, int page)
         {
             return await _productRepository.GetAllByBrandAsync(brandId, pageSize, page);
         }
 
-        public async Task<IList<Product>> GetAllBySupplierAsync(int supplierId, int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
+        public async Task<IList<Product>> GetAllBySupplierAsync(Guid supplierId, int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
         {
             return await _productRepository.GetAllBySupplierAsync(supplierId, pageSize, page);
         }
@@ -73,9 +73,9 @@ namespace BuyEngine.Catalog
             await _productRepository.RemoveAsync(product);
         }
 
-        public async Task RemoveAsync(int productId)
+        public async Task RemoveAsync(Guid productId)
         {
-            Guard.NegativeOrZero(productId, nameof(productId));
+            Guard.Default(productId, nameof(productId));
 
             var product = await _productRepository.GetAsync(productId);
             if (product == null)
@@ -97,15 +97,15 @@ namespace BuyEngine.Catalog
 
     public interface IProductService
     {
-        Task<Product> GetAsync(int productId);
+        Task<Product> GetAsync(Guid productId);
         Task<Product> GetAsync(string sku);
         Task<IList<Product>> GetAllAsync(int pageSize, int page);
-        Task<IList<Product>> GetAllByBrandAsync(int brandId, int pageSize, int page);
-        Task<IList<Product>> GetAllBySupplierAsync(int supplierId, int pageSize, int page);
+        Task<IList<Product>> GetAllByBrandAsync(Guid brandId, int pageSize, int page);
+        Task<IList<Product>> GetAllBySupplierAsync(Guid supplierId, int pageSize, int page);
 
         Task<bool> IsSkuUniqueAsync(string sku);
         Task<int> AddAsync(Product product);
-        Task RemoveAsync(int productId);
+        Task RemoveAsync(Guid productId);
         Task RemoveAsync(Product product);
         Task<bool> UpdateAsync(Product product);
         Task<ValidationResult> ValidateAsync(Product product, bool requireUniqueSku);

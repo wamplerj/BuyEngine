@@ -10,5 +10,7 @@ namespace BuyEngine.Checkout
         public DateTime Expires { get; set; }
 
         public List<CartItem> Items { get; set; } = new();
+
+        public bool IsExpired => Expires <= DateTime.UtcNow;
     }
 }

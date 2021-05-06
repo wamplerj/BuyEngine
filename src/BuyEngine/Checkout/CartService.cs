@@ -67,7 +67,13 @@ namespace BuyEngine.Checkout
             cartItem.Sku = product.Sku;
             cartItem.Quantity = quantity;
 
-            cart.Items.Add(cartItem);
+            if (cartItem.IsNew)
+            {
+                cartItem.Id = Guid.NewGuid();
+                cart.Items.Add(cartItem);
+                _logger.LogInformation($"Adding CartItem {cartItem.Id} for Sku: {cartItem.Sku} to Cart Id: {cart.Id}");
+            }
+
             await UpdateAsync(cart);
 
             _logger.LogInformation($"Cart with Id: {cartId} updated with Product: {productId}, Quantity: {quantity}");
@@ -87,9 +93,23 @@ namespace BuyEngine.Checkout
 
         public async Task<bool> AbandonAsync(Guid cartId)
         {
-            _logger.LogInformation($"Removing Cart with Id: {cartId}");
+            var cart = await _cartRepository.GetAsync(cartId);
 
-            return await _cartRepository.Delete(cartId);
+            if (cart == null)
+            {
+                _logger.LogWarning($"Cart Id: {cartId} could not be found.");
+                return false;
+            }
+
+            if (cart.IsExpired)
+            {
+                _logger.LogInformation($"Abandoning Cart ID: {cartId}");
+                return await _cartRepository.Delete(cartId);
+            }
+
+            _logger.LogWarning($"Cart Id: {cartId} has not expired.  Can not be abandoned");
+            return false;
+
         }
     }
 

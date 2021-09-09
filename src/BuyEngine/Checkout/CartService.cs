@@ -83,11 +83,9 @@ namespace BuyEngine.Checkout
         public async Task UpdateAsync(Cart cart)
         {
             var result = await _validator.ValidateAsync(cart);
-            if (result.IsNotValid)
-                throw new ValidationException(result, nameof(UpdateAsync));
+            result.ThrowIfInvalid(nameof(cart));
 
             cart.Expires = DateTime.UtcNow.AddMinutes(CatalogConfiguration.CartExpirationInMinutes);
-
             var success = await _cartRepository.Update(cart);
         }
 

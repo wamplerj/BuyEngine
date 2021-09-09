@@ -4,15 +4,15 @@ namespace BuyEngine.Common
 {
     public class ValidationException : Exception
     {
-        public ValidationException(ValidationResult validationResult, string method)
+        public ValidationException(ValidationResult validationResult, string model)
         {
             ValidationResult = validationResult;
-            Method = method;
+            Model = model;
         }
 
         public ValidationResult ValidationResult { get; }
 
-        public string Method { get; } 
+        public string Model { get; } 
         
     }
 }

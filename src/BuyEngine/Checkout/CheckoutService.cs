@@ -1,14 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using BuyEngine.Checkout.Payment;
+﻿using BuyEngine.Checkout.Payment;
 using BuyEngine.Checkout.Shipping;
 using BuyEngine.Common;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BuyEngine.Checkout
 {
-    public class CheckoutService
+    public class CheckoutService : ICheckoutService
     {
         private readonly IModelValidator<SalesOrder> _validator;
         private readonly IInventoryService _inventoryService;
@@ -72,5 +72,10 @@ namespace BuyEngine.Checkout
             var skuInventory = await _inventoryService.IsAvailable(skus);
             skuInventory.ThrowIfOutOfStock(); 
         }
+    }
+
+    public interface ICheckoutService
+    {
+        Task<Guid> CheckoutAsync(SalesOrder salesOrder);
     }
 }

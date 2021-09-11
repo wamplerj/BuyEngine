@@ -1,5 +1,6 @@
-﻿using System.Threading.Tasks;
-using BuyEngine.Common;
+﻿using BuyEngine.Common;
+using System;
+using System.Threading.Tasks;
 
 namespace BuyEngine.Checkout.Payment
 {
@@ -7,9 +8,25 @@ namespace BuyEngine.Checkout.Payment
     {
         public async Task<ValidationResult> ValidateAsync(PaymentInformation payment)
         {
-            //TODO Validate Payment Info
-
             var result = new ValidationResult();
+
+            if (payment.IsAuthorized) return result;
+
+            if (string.IsNullOrWhiteSpace(payment.CreditCardNumber))
+                result.AddMessage(nameof(payment.CreditCardNumber), "Credit Card Number is required");
+
+            if (string.IsNullOrWhiteSpace(payment.Ccv))
+                result.AddMessage(nameof(payment.Ccv), "Credit Card Verification Number (CCV) is required");
+
+            if (string.IsNullOrWhiteSpace(payment.Payee))
+                result.AddMessage(nameof(payment.Payee), "Name on Credit Card is required");
+
+            if (payment.Expiration <= DateTime.Today)
+                result.AddMessage(nameof(payment.Expiration), "Expiration Date is required");
+
+            if (string.IsNullOrWhiteSpace(payment.PostalCode))
+                result.AddMessage(nameof(payment.PostalCode), "Postal Code is required");
+
             return result;
         }
     }

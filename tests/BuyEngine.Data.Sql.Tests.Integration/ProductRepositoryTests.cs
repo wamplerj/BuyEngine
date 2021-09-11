@@ -7,7 +7,8 @@ namespace BuyEngine.Data.Sql.Tests.Integration
 {
     public class ProductRepositoryTests
     {
-        private const string ConnectionString = @"Data Source=NEW-PC;Initial Catalog=BuyEngine;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+        private const string ConnectionString =
+            @"Data Source=.;Initial Catalog=BuyEngine;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
         [Test]
         public async Task Get_Product_By_Id()

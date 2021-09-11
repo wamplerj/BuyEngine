@@ -61,7 +61,14 @@ namespace BuyEngine.Tests.Unit.Checkout
                 Price = 9.95m,
                 Timeframe = "2 Business Days"
             };
-            var payment = new PaymentInformation();
+            var payment = new PaymentInformation
+            {
+                CreditCardNumber = "8111111111111111",
+                Ccv = "123",
+                Expiration = DateTime.Today.AddYears(5),
+                PostalCode = "98101",
+                Payee = "Testy McTesterson"
+            };
 
             var salesOrder = await _builder
                 .SetCart(cart)

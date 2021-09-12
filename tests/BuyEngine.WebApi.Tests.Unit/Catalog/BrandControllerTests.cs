@@ -7,6 +7,7 @@ using Moq;
 using NUnit.Framework;
 using System;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace BuyEngine.WebApi.Tests.Unit.Catalog
 {
@@ -24,31 +25,33 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
         }
 
         [Test]
-        public void Getting_A_Valid_Supplier_ById_Returns_Ok()
+        public async Task Getting_A_Valid_Supplier_ById_Returns_Ok()
         {
-            _brandService.Setup(ps => ps.GetAsync(1)).ReturnsAsync(new Brand() {Id = 1});
+            var guid = Guid.NewGuid();
+            _brandService.Setup(ps => ps.GetAsync(guid)).ReturnsAsync(new Brand() {Id = guid});
 
-            var result = _controller.Get(1).Result;
+            var result = await _controller.Get(guid);
             Assert.That(result, Is.TypeOf<OkObjectResult>());
         }
 
         [Test]
-        public void Getting_An_Invalid_Supplier_ById_Returns_BadRequest()
+        public async Task Getting_An_Invalid_Supplier_ById_Returns_BadRequest()
         {
-            var result = _controller.Get(0).Result;
+            var result = await _controller.Get(Guid.Empty);
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
 
         [Test]
-        public void Getting_An_Unknown_Supplier_ById_Returns_NotFound()
+        public async Task Getting_An_Unknown_Supplier_ById_Returns_NotFound()
         {
-            _brandService.Setup(ps => ps.GetAsync(1)).ReturnsAsync(null as Brand);
-            var result = _controller.Get(123).Result;
+            var guid = Guid.NewGuid();
+            _brandService.Setup(ps => ps.GetAsync(guid)).ReturnsAsync(null as Brand);
+            var result = await _controller.Get(guid);
             Assert.That(result, Is.TypeOf<NotFoundObjectResult>());
         }
 
         [Test]
-        public void Creating_A_Valid_Supplier_Returns_Created()
+        public async Task Creating_A_Valid_Supplier_Returns_Created()
         {
 
             var mockUrlHelper = new Mock<IUrlHelper>(MockBehavior.Strict);
@@ -58,16 +61,16 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
 
             _controller.Url = mockUrlHelper.Object;
             
-            _brandService.Setup(ps => ps.Add(It.IsAny<Brand>())).Returns(1);
-            _brandService.Setup(ss => ss.Validate(It.IsAny<Brand>())).Returns(new ValidationResult() { });
+            _brandService.Setup(ps => ps.AddAsync(It.IsAny<Brand>())).ReturnsAsync(1);
+            _brandService.Setup(ss => ss.ValidateAsync(It.IsAny<Brand>())).ReturnsAsync(new ValidationResult() { });
 
-            var result = _controller.Add(new Brand());
+            var result = await _controller.Add(new Brand());
             Assert.That(result, Is.TypeOf<CreatedResult>());
-            _brandService.Verify(ss => ss.Add(It.IsAny<Brand>()), Times.Once);
+            _brandService.Verify(ss => ss.AddAsync(It.IsAny<Brand>()), Times.Once);
         }
 
         [Test]
-        public void Creating_An_Invalid_Supplier_Returns_BadRequest()
+        public async Task Creating_An_Invalid_Supplier_Returns_BadRequest()
         {
 
             var mockUrlHelper = new Mock<IUrlHelper>(MockBehavior.Strict);
@@ -82,16 +85,16 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
                 Messages = {{"Bad Value", "Oops"}}
             };
 
-            _brandService.Setup(ps => ps.Add(It.IsAny<Brand>())).Returns(1);
-            _brandService.Setup(ss => ss.Validate(It.IsAny<Brand>())).Returns(validationResult);
+            _brandService.Setup(ps => ps.AddAsync(It.IsAny<Brand>())).ReturnsAsync(1);
+            _brandService.Setup(ss => ss.ValidateAsync(It.IsAny<Brand>())).ReturnsAsync(validationResult);
 
-            var result = _controller.Add(new Brand());
+            var result = await _controller.Add(new Brand());
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
-            _brandService.Verify(ss => ss.Add(It.IsAny<Brand>()), Times.Never);
+            _brandService.Verify(ss => ss.AddAsync(It.IsAny<Brand>()), Times.Never);
         }
 
         [Test]
-        public void Updating_A_Valid_Supplier_Returns_Ok()
+        public async Task Updating_A_Valid_Supplier_Returns_Ok()
         {
 
             var mockUrlHelper = new Mock<IUrlHelper>(MockBehavior.Strict);
@@ -101,16 +104,16 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
 
             _controller.Url = mockUrlHelper.Object;
 
-            _brandService.Setup(ps => ps.Update(It.IsAny<Brand>()));
-            _brandService.Setup(ss => ss.Validate(It.IsAny<Brand>())).Returns(new ValidationResult() { });
+            _brandService.Setup(ps => ps.UpdateAsync(It.IsAny<Brand>()));
+            _brandService.Setup(ss => ss.ValidateAsync(It.IsAny<Brand>())).ReturnsAsync(new ValidationResult() { });
 
-            var result = _controller.Update(new Brand());
+            var result = await _controller.Update(new Brand());
             Assert.That(result, Is.TypeOf<OkObjectResult>());
-            _brandService.Verify(ss => ss.Update(It.IsAny<Brand>()), Times.Once);
+            _brandService.Verify(ss => ss.UpdateAsync(It.IsAny<Brand>()), Times.Once);
         }
 
         [Test]
-        public void Updating_An_Invalid_Supplier_Returns_BadRequest()
+        public async Task Updating_An_Invalid_Supplier_Returns_BadRequest()
         {
 
             var mockUrlHelper = new Mock<IUrlHelper>(MockBehavior.Strict);
@@ -125,12 +128,12 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
                 Messages = { { "Bad Value", "Oops" } }
             };
 
-            _brandService.Setup(ps => ps.Add(It.IsAny<Brand>())).Returns(1);
-            _brandService.Setup(ss => ss.Validate(It.IsAny<Brand>())).Returns(validationResult);
+            _brandService.Setup(ps => ps.AddAsync(It.IsAny<Brand>())).ReturnsAsync(1);
+            _brandService.Setup(ss => ss.ValidateAsync(It.IsAny<Brand>())).ReturnsAsync(validationResult);
 
-            var result = _controller.Update(new Brand());
+            var result = await _controller.Update(new Brand());
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
-            _brandService.Verify(ss => ss.Update(It.IsAny<Brand>()), Times.Never);
+            _brandService.Verify(ss => ss.UpdateAsync(It.IsAny<Brand>()), Times.Never);
         }
     }
 }

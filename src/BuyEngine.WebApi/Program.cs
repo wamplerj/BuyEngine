@@ -23,8 +23,7 @@ namespace BuyEngine.WebApi
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            return Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+            return Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
         }
 
         public static LoggingConfiguration ConfigureNLog()
@@ -34,7 +33,7 @@ namespace BuyEngine.WebApi
             // Targets where to log to: File and Console
             var logfile = new FileTarget("logfile")
             {
-                FileName = "../../../../logs/BuyEngine.WebApi/log.txt",
+                FileName = "../../../../../logs/BuyEngine.WebApi/log.txt",
                 ArchiveFileName = "log-{#}.txt",
                 ArchiveNumbering = ArchiveNumberingMode.Date,
                 ArchiveDateFormat = "yyyyMMdd-HH",

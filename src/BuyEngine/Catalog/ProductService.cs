@@ -1,156 +1,114 @@
 ﻿using BuyEngine.Common;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BuyEngine.Catalog
 {
     public class ProductService : IProductService
     {
-        private readonly ICatalogDbContext _catalogDbContext;
+        private readonly IProductRepository _productRepository;
         private readonly IProductValidator _productValidator;
 
-        public ProductService(ICatalogDbContext catalogDbContext, IProductValidator productValidator)
+        public ProductService(IProductRepository productRepository, IProductValidator productValidator)
         {
-            _catalogDbContext = catalogDbContext;
+            _productRepository = productRepository;
             _productValidator = productValidator;
         }
 
-        public Product Get(int productId)
+        public async Task<Product> GetAsync(Guid productId)
         {
-            return GetAsync(productId).ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        public async Task<Product> GetAsync(int productId)
-        {
-            var product = await _catalogDbContext.Products
-                .AsNoTracking()
-                .Include(s => s.Supplier)
-                .Include(b => b.Brand)
-                .Where(p => p.Id == productId).FirstOrDefaultAsync();
+            var product = await _productRepository.GetAsync(productId);
 
             return product;
         }
 
-        public Product Get(string sku)
-        {
-            return GetAsync(sku).ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
         public async Task<Product> GetAsync(string sku)
         {
-            return await _catalogDbContext.Products
-                .AsNoTracking()
-                .Include(s => s.Supplier)
-                .Include(b => b.Brand)
-                .Where(p => p.Sku.Equals(sku)).FirstOrDefaultAsync();
+            return await _productRepository.GetAsync(sku);
         }
-
-        public IList<Product> GetAll(int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
-        {
-            return GetAllAsync(pageSize, page).ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
+        
         public async Task<IList<Product>> GetAllAsync(int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
         {
-            return await _catalogDbContext.Products.Skip(page * pageSize).Take(pageSize).ToListAsync();
+            return await _productRepository.GetAllAsync(pageSize, page);
         }
 
-        public IList<Product> GetAllBySupplier(int supplierId, int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
+        public async Task<IList<Product>> GetAllByBrandAsync(Guid brandId, int pageSize, int page)
         {
-            return GetAllBySupplierAsync(supplierId, pageSize, page).ConfigureAwait(false).GetAwaiter().GetResult();
+            return await _productRepository.GetAllByBrandAsync(brandId, pageSize, page);
         }
 
-        public async Task<IList<Product>> GetAllBySupplierAsync(int supplierId, int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
+        public async Task<IList<Product>> GetAllBySupplierAsync(Guid supplierId, int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
         {
-            return await _catalogDbContext.Products.Skip(pageSize * page).Take(pageSize).ToListAsync();
+            return await _productRepository.GetAllBySupplierAsync(supplierId, pageSize, page);
         }
 
-        public int Add(Product product)
+        public async Task<int> AddAsync(Product product)
         {
             Guard.Null(product, nameof(product));
 
-            var result = _productValidator.Validate(product);
+            var result = await _productValidator.ValidateAsync(product);
             if (!result.IsValid)
                 throw new ValidationException(result, nameof(product));
 
-            _catalogDbContext.Products.Add(product);
-            _catalogDbContext.SaveChanges();
-
-            return product.Id;
+            var id = await _productRepository.AddAsync(product);
+            return id;
         }
 
-        public int Update(Product product)
+        public async Task<bool> UpdateAsync(Product product)
         {
             Guard.Null(product, nameof(product));
 
-            var result = _productValidator.Validate(product, requireUniqueSku:false);
+            var result = await _productValidator.ValidateAsync(product, requireUniqueSku:false);
             if (!result.IsValid)
                 throw new ValidationException(result, nameof(product));
 
-            _catalogDbContext.Products.Update(product);
-            _catalogDbContext.SaveChanges();
-
-            return product.Id;
+            var success = await _productRepository.UpdateAsync(product);
+            return success;
         }
 
-        public void Remove(Product product)
+        public async Task RemoveAsync(Product product)
         {
             Guard.Null(product, nameof(product));
-
-            _catalogDbContext.Products.Remove(product);
-            _catalogDbContext.SaveChanges();
+            await _productRepository.RemoveAsync(product);
         }
 
-        public void Remove(int productId)
+        public async Task RemoveAsync(Guid productId)
         {
-            Guard.NegativeOrZero(productId, nameof(productId));
+            Guard.Default(productId, nameof(productId));
 
-            var product = _catalogDbContext.Products.FirstOrDefault(p => p.Id == productId);
+            var product = await _productRepository.GetAsync(productId);
             if (product == null)
                 throw new ArgumentException("ProductId could not be found", nameof(productId));
 
-            _catalogDbContext.Products.Remove(product);
-            _catalogDbContext.SaveChanges();
+            await _productRepository.RemoveAsync(product);
         }
 
-        public bool IsSkuUnique(string sku)
-        {
-            return _productValidator.IsSkuUnique(sku);
-        }
         public Task<bool> IsSkuUniqueAsync(string sku)
         {
             return _productValidator.IsSkuUniqueAsync(sku);
         }
 
-        public ValidationResult Validate(Product product, bool requireUniqueSku)
+        public async Task<ValidationResult> ValidateAsync(Product product, bool requireUniqueSku)
         {
-            return _productValidator.Validate(product, requireUniqueSku);
+            return await _productValidator.ValidateAsync(product, requireUniqueSku);
         }
-
     }
 
     public interface IProductService
     {
-        int Add(Product product);
-        
-        Product Get(int productId);
-        Task<Product> GetAsync(int productId);
-        Product Get(string sku);
+        Task<Product> GetAsync(Guid productId);
         Task<Product> GetAsync(string sku);
-        IList<Product> GetAll(int pageSize, int page);
         Task<IList<Product>> GetAllAsync(int pageSize, int page);
-        IList<Product> GetAllBySupplier(int supplierId, int pageSize, int page);
-        Task<IList<Product>> GetAllBySupplierAsync(int supplierId, int pageSize, int page);
+        Task<IList<Product>> GetAllByBrandAsync(Guid brandId, int pageSize, int page);
+        Task<IList<Product>> GetAllBySupplierAsync(Guid supplierId, int pageSize, int page);
 
-        bool IsSkuUnique(string sku);
         Task<bool> IsSkuUniqueAsync(string sku);
-        void Remove(int productId);
-        void Remove(Product product);
-        int Update(Product product);
-        ValidationResult Validate(Product product, bool requireUniqueSku);
+        Task<int> AddAsync(Product product);
+        Task RemoveAsync(Guid productId);
+        Task RemoveAsync(Product product);
+        Task<bool> UpdateAsync(Product product);
+        Task<ValidationResult> ValidateAsync(Product product, bool requireUniqueSku);
         
     }
 }

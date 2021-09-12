@@ -12,6 +12,12 @@ namespace BuyEngine.Common
         }
         
         public bool IsValid => !Messages.Any();
+        public bool IsInvalid => Messages.Any();
+
+        public void ThrowIfInvalid(string modelName)
+        {
+           
+        }
 
         public IDictionary<string, string> Messages { get; }
 

@@ -1,24 +1,23 @@
 ﻿using BuyEngine.Common;
-using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace BuyEngine.Catalog
 {
     public class ProductValidator: IProductValidator
     {
-        private readonly ICatalogDbContext _catalogDbContext;
+        private readonly IProductRepository _productRepository;
 
-        public ProductValidator(ICatalogDbContext catalogDbContext)
+        public ProductValidator(IProductRepository productRepository)
         {
-            _catalogDbContext = catalogDbContext;
+            _productRepository = productRepository;
         }
 
-        public ValidationResult Validate(Product product)
+        public async Task<ValidationResult> ValidateAsync(Product product)
         {
-            return Validate(product, requireUniqueSku: true);
+            return await ValidateAsync(product, true);
         }
 
-        public ValidationResult Validate(Product product, bool requireUniqueSku)
+        public async Task<ValidationResult> ValidateAsync(Product product, bool requireUniqueSku)
         {
             var result = new ValidationResult();
 
@@ -33,28 +32,22 @@ namespace BuyEngine.Catalog
 
             if (!requireUniqueSku) return result;
             
-            var unique = IsSkuUnique(product.Sku);
+            var unique = await IsSkuUniqueAsync(product.Sku);
             if (!unique)
                 result.AddMessage(nameof(product.Sku), "Product SKU must be Unique");
 
             return result;
         }
 
-        public bool IsSkuUnique(string sku)
-        {
-            return IsSkuUniqueAsync(sku).GetAwaiter().GetResult();
-        }
-
         public async Task<bool> IsSkuUniqueAsync(string sku)
         {
-            return await _catalogDbContext.Products.AnyAsync(p => p.Sku.Equals(sku)).ContinueWith(n => !n.Result);
+            return await _productRepository.ExistsAsync(sku);
         }
     }
 
     public interface IProductValidator : IModelValidator<Product>
     {
-        ValidationResult Validate(Product product, bool requireUniqueSku);
-        bool IsSkuUnique(string sku);
+        Task<ValidationResult> ValidateAsync(Product product, bool requireUniqueSku);
         Task<bool> IsSkuUniqueAsync(string sku);
     }
 }

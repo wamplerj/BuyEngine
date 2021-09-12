@@ -1,8 +1,19 @@
-﻿namespace BuyEngine.Common
+﻿using System.Threading.Tasks;
+
+namespace BuyEngine.Common
 {
     public interface IModelValidator<in T>
     {
-        bool IsValid(T t) => Validate(t).IsValid;
-        ValidationResult Validate(T brand);
+        async Task<bool> IsValidAsync(T t) => (await ValidateAsync(t)).IsValid;
+        async Task<bool> IsInvalidAsync(T t) => (await ValidateAsync(t)).IsInvalid;
+        Task<ValidationResult> ValidateAsync(T model);
+
+        async Task ThrowIfInvalidAsync(T model, string modelName)
+        {
+            var result = await ValidateAsync(model);
+            if (result.IsValid) return;
+
+            throw new ValidationException(result, modelName);
+        }
     }
 }

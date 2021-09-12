@@ -1,4 +1,5 @@
-﻿using BuyEngine.Catalog.Brands;
+﻿using System;
+using BuyEngine.Catalog.Brands;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 using System.Threading.Tasks;
@@ -19,12 +20,12 @@ namespace BuyEngine.WebApi.Catalog
         }
 
         [HttpGet]
-        [Route("{brandId}:int")]
-        public async Task<ActionResult> Get(int brandId)
+        [Route("{brandId}:guid")]
+        public async Task<ActionResult> Get(Guid brandId)
         {
-            if (brandId <= 0)
+            if (brandId == default)
             {
-                _logger.Info($"BrandId is invalid.  Id must be >= 0");
+                _logger.Info($"BrandId is invalid.  Id must be a valid guid");
                 return BadRequest($"{brandId} is not a valid Brand ID");
             }
 
@@ -39,47 +40,48 @@ namespace BuyEngine.WebApi.Catalog
 
         [HttpPost]
         [Route("/be-api/products/brand")]
-        public ActionResult Add([FromBody] Brand brand)
+        public async Task<ActionResult> Add([FromBody] Brand brand)
         {
-            var result = _brandService.Validate(brand);
+            var result = await _brandService.ValidateAsync(brand);
             if (!result.IsValid)
             {
                 _logger.Info($"Failed to add Brand: {brand.Name} due to validation issues");
                 return BadRequest(result.Messages);
             }
             
-            var id = _brandService.Add(brand);
+            var id = await _brandService.AddAsync(brand);
             var url = Url.Action("Get", id);
             return Created(url, brand);
         }
 
         [HttpPut]
         [Route("/be-api/products/brand")]
-        public ActionResult Update(  [FromBody] Brand brand)
+        public async Task<ActionResult> Update([FromBody] Brand brand)
         {
-            var result = _brandService.Validate(brand);
+            var result = await _brandService.ValidateAsync(brand);
             if (!result.IsValid)
             {
                 _logger.Info($"Failed to update Brand: {brand.Name} due to validation issues");
                 return BadRequest(result.Messages);
             }
 
-            _brandService.Update(brand);
-            var url = Url.Action("Get");
+            var success = await _brandService.UpdateAsync(brand);
+
+            var url = Url.Action("Get", brand.Id);
             return Ok(url);
         }
 
         [HttpDelete]
         [Route("/be-api/products/brand/{brandId}")]
-        public ActionResult Delete(int brandId)
+        public async Task<ActionResult> Delete(Guid brandId)
         {
-            if (brandId <= 0)
+            if (brandId == default)
             {
-                _logger.Info($"{brandId} is invalid.  Id must be >= 0");
+                _logger.Info($"{brandId} is invalid.  Id must be a valid guid");
                 return BadRequest($"{brandId} is not a valid Brand ID");
             }
 
-            _brandService.Remove(brandId);
+            await _brandService.RemoveAsync(brandId);
             _logger.Info($"BrandId: {brandId} was deleted sucessfully.");
 
             return Ok();

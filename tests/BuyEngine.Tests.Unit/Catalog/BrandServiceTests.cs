@@ -1,7 +1,6 @@
-﻿using BuyEngine.Catalog;
-using BuyEngine.Catalog.Brands;
+﻿using BuyEngine.Catalog.Brands;
 using BuyEngine.Common;
-using Microsoft.EntityFrameworkCore;
+using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -12,93 +11,52 @@ namespace BuyEngine.Tests.Unit.Catalog
 {
     public class BrandServiceTests
     {
-        private CatalogDbContext _catalogDbContext;
+        private Mock<IBrandRepository> _brandRepository;
         private BrandService _brandService;
 
         [SetUp]
         public void SetUp()
         {
-            var options = new DbContextOptionsBuilder<CatalogDbContext>()
-                .UseInMemoryDatabase($"{nameof(BrandServiceTests)}-{Guid.NewGuid()}").Options;
-            _catalogDbContext = new CatalogDbContext(options);
-
-            _brandService = new BrandService(_catalogDbContext, new BrandValidator());
+            _brandRepository = new Mock<IBrandRepository>();
+            _brandService = new BrandService(_brandRepository.Object, new BrandValidator());
         }
 
         [Test]
-        public void Getting_A_Known_Brand_By_Id_Returns_Successfully()
+        public async Task Getting_A_Known_Brand_By_Id_Returns_Successfully()
         {
-            _catalogDbContext.Brands.Add(new Brand() {Id=1,Name = "Test", Notes = "TestNotes", WebsiteUrl = "http://someurl"});
-            _catalogDbContext.SaveChanges();
 
-            var result = _brandService.Get(1);
+            var id = Guid.NewGuid();
+            _brandRepository.Setup(br => br.GetAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(new Brand() {Id=id,Name = "Test", Notes = "TestNotes", WebsiteUrl = "http://someurl"});
+
+            var result = await _brandService.GetAsync(id);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Id, Is.EqualTo(1));
+            Assert.That(result.Id, Is.EqualTo(id));
             Assert.That(result.Name, Is.EqualTo("Test"));
             Assert.That(result.Notes, Is.EqualTo("TestNotes"));
             Assert.That(result.WebsiteUrl, Is.EqualTo("http://someurl"));
         }
 
         [Test]
-        public void Getting_An_Unknown_Brand_By_Id_Returns_Null()
+        public async Task Getting_An_Unknown_Brand_By_Id_Returns_Null()
         {
-            var result = _brandService.Get(1);
+            var result = await _brandService.GetAsync(Guid.NewGuid());
 
             Assert.That(result, Is.Null);
         }
 
         [Test]
-        public async Task Getting_All_Brands_Returns_First_Page_Only()
+        public async Task Getting_All_Brands_Returns_Results()
         {
-            var brands = GetBrandsForPaging();
-            foreach (var brand in brands)
-            {
-                await _catalogDbContext.Brands.AddAsync(brand);
-            }
-
-            await _catalogDbContext.SaveChangesAsync();
-
+          
             var result = await _brandService.GetAllAsync(5, 0);
-            Assert.That(result.Count, Is.EqualTo(5));
-            Assert.That(result.First().Id, Is.EqualTo(1));
-            Assert.That(result.Last().Id, Is.EqualTo(5));
+            _brandRepository.Verify(br => br.GetAllAsync(5, 0), Times.Once);
+
         }
 
         [Test]
-        public async Task Getting_All_Brands_Returns_Second_Page_Only()
-        {
-            var brands = GetBrandsForPaging();
-            foreach (var brand in brands)
-            {
-                await _catalogDbContext.Brands.AddAsync(brand);
-            }
-
-            await _catalogDbContext.SaveChangesAsync();
-
-            var result = await _brandService.GetAllAsync(5, 1);
-            Assert.That(result.Count, Is.EqualTo(5));
-            Assert.That(result.First().Id, Is.EqualTo(6));
-            Assert.That(result.Last().Id, Is.EqualTo(10));
-        }
-
-        [Test]
-        public async Task Getting_All_Brands_Third_Page_Returns_No_Results()
-        {
-            var brands = GetBrandsForPaging();
-            foreach (var brand in brands)
-            {
-                await _catalogDbContext.Brands.AddAsync(brand);
-            }
-
-            await _catalogDbContext.SaveChangesAsync();
-
-            var result = await _brandService.GetAllAsync(5, 2);
-            Assert.That(result.Count, Is.EqualTo(0));
-        }
-
-        [Test]
-        public void Valid_Brand_Validates_Successfully()
+        public async Task Valid_Brand_Validates_Successfully()
         {
             var brandService = new BrandService(null, new BrandValidator());
             var brand = new Brand()
@@ -106,16 +64,16 @@ namespace BuyEngine.Tests.Unit.Catalog
                 Name = "Test"
             };
 
-            var result = brandService.IsValid(brand);
+            var result = await brandService.IsValidAsync(brand);
 
             Assert.That(result, Is.True);
         }
 
         [Test]
-        public void Invalid_Brands_Fails_Validation()
+        public async Task Invalid_Brands_Fails_Validation()
         {
             var brandService = new BrandService(null, new BrandValidator());
-            var result = brandService.Validate(new Brand());
+            var result = await brandService.ValidateAsync(new Brand());
 
             Assert.That(result.IsValid, Is.False);
             Assert.That(result.Messages.Count, Is.EqualTo(1));
@@ -123,102 +81,55 @@ namespace BuyEngine.Tests.Unit.Catalog
         }
 
         [Test]
-        public void Adding_A_Valid_Brand_Succeeds()
+        public async Task Adding_A_Valid_Brand_Succeeds()
         {
             var brand = new Brand() { Name = "Test" };
-            _brandService.Add(brand);
+            await _brandService.AddAsync(brand);
 
-            var result = _catalogDbContext.Brands.Find(1);
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Id, Is.EqualTo(1));
+            _brandRepository.Verify(br => br.AddAsync(brand), Times.Once);
         }
 
         [Test]
         public void Adding_An_Invalid_Brand_Fails()
         {
             var brand = new Brand();
-            Assert.Throws<ValidationException>(() => _brandService.Add(brand));
+            Assert.ThrowsAsync<ValidationException>(async () => await _brandService.AddAsync(brand));
+            _brandRepository.Verify(br => br.AddAsync(It.IsAny<Brand>()), Times.Never);
         }
 
         [Test]
-        public void Updating_A_Valid_Brand_Succeeds()
+        public async Task Updating_A_Valid_Brand_Succeeds()
         {
-            var brand = new Brand() { Id = 1, Name = "Test" };
-            _brandService.Add(brand);
+            _brandRepository.Setup(br => br.UpdateAsync(It.IsAny<Brand>())).ReturnsAsync(true);
+            await _brandService.UpdateAsync(new Brand() {Name = "Test"});
 
-            brand.Name = "Update Test";
-            _brandService.Update(brand);
-
-            var result = _catalogDbContext.Brands.Find(1);
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Id, Is.EqualTo(1));
-            Assert.That(result.Name, Is.EqualTo("Update Test"));
+            _brandRepository.Verify(br => br.UpdateAsync(It.IsAny<Brand>()), Times.Once);
         }
 
         [Test]
-        public void Updating_An_Invalid_Brand_Fails()
+        public async Task Updating_An_Invalid_Brand_Fails()
         {
             var brand = new Brand();
-            Assert.Throws<ValidationException>(() => _brandService.Update(brand));
+            Assert.ThrowsAsync<ValidationException>(async () => await _brandService.UpdateAsync(brand));
         }
 
         [Test]
-        public void Removing_An_Existing_Brand_Succeeds()
+        public async Task Removing_An_Existing_Brand_Succeeds()
         {
-            var brand = new Brand() {Name = "Remove"};
-            _catalogDbContext.Brands.Add(brand);
-            _catalogDbContext.SaveChanges();
-
-            try
-            {
-                _brandService.Remove(brand);
-            }
-            catch (Exception)
-            {
-                Assert.Fail();
-                return;
-            }
-
-            Assert.Pass();
+            var id = Guid.NewGuid();
+            await _brandService.RemoveAsync(new Brand() {Id = id});
+            _brandRepository.Verify(br => br.RemoveAsync(It.IsAny<Brand>()), Times.Once);
         }
 
         [Test]
-        public void Removing_An_Existing_Brand_By_Id_Succeeds()
+        public async Task Removing_An_Existing_Brand_By_Id_Succeeds()
         {
-            var brand = new Brand() { Id = 1, Name = "Remove" };
-            _catalogDbContext.Brands.Add(brand);
-            _catalogDbContext.SaveChanges();
+            var id = Guid.NewGuid();
+            _brandRepository.Setup(br => br.GetAsync(It.IsAny<Guid>())).ReturnsAsync(new Brand() {Id = id});
 
+            await _brandService.RemoveAsync(id);
+            _brandRepository.Verify(br => br.RemoveAsync(It.IsAny<Brand>()), Times.Once);
 
-            try
-            {
-                _brandService.Remove(1);
-            }
-            catch (Exception)
-            {
-                Assert.Fail();
-                return;
-            }
-
-            Assert.Pass();
         }
-
-
-        private IEnumerable<Brand> GetBrandsForPaging()
-        {
-            var brands = new List<Brand>();
-            for (var i = 1; i <= 10; i++)
-            {
-                var brand = new Brand()
-                {
-                    Id = i,
-                    Name = $"Brand {i}"
-                };
-                brands.Add(brand);
-            }
-
-            return brands;
-        }
-
     }
 }

@@ -1,6 +1,7 @@
 ﻿using BuyEngine.Catalog.Suppliers;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
+using System;
 using System.Threading.Tasks;
 
 namespace BuyEngine.WebApi.Catalog
@@ -20,9 +21,9 @@ namespace BuyEngine.WebApi.Catalog
 
         [HttpGet]
         [Route("{supplierId}:int")]
-        public async Task<ActionResult> Get(int supplierId)
+        public async Task<ActionResult> Get(Guid supplierId)
         {
-            if (supplierId <= 0)
+            if (supplierId == default)
             {
                 _logger.Info($"SupplierId is invalid.  Id must be >= 0");
                 return BadRequest($"{supplierId} is not a valid Supplier ID");
@@ -39,50 +40,50 @@ namespace BuyEngine.WebApi.Catalog
 
         [HttpPost]
         [Route("/be-api/products/suppliers")]
-        public ActionResult Add([FromBody] Supplier supplier)
+        public async Task<ActionResult> Add([FromBody] Supplier supplier)
         {
-            var result = _supplierService.Validate(supplier);
+            var result = await _supplierService.ValidateAsync(supplier);
             if (!result.IsValid)
             {
                 _logger.Info($"Failed to add Supplier: {supplier.Name} due to validation issues");
                 return BadRequest(result.Messages);
             }
             
-            var id = _supplierService.Add(supplier);
+            var id = await _supplierService.AddAsync(supplier);
             return Created(Url.Action("Get", id), supplier);
         }
 
         [HttpPut]
         [Route("/be-api/products/suppliers")]
-        public ActionResult Update([FromBody] Supplier supplier)
+        public async Task<ActionResult> Update([FromBody] Supplier supplier)
         {
-            var result = _supplierService.Validate(supplier);
+            var result = await _supplierService.ValidateAsync(supplier);
             if (!result.IsValid)
             {
                 _logger.Info($"Failed to update Supplier: {supplier.Name} due to validation issues");
                 return BadRequest(result.Messages);
             }
 
-            _supplierService.Update(supplier);
+            await _supplierService.UpdateAsync(supplier);
             var url = Url.Action("Get");
             return Ok(url);
         }
 
         [HttpDelete]
         [Route("/be-api/products/suppliers/{supplierId}")]
-        public ActionResult Delete(int supplierId)
+        public async Task<ActionResult> Delete(Guid supplierId)
         {
 
-            if (supplierId <= 0)
+            if (supplierId == default)
             {
                 _logger.Info($"SupplierId is invalid.  Id must be >= 0");
                 return BadRequest($"{supplierId} is not a valid Supplier ID");
             }
 
-            _supplierService.Remove(supplierId);
+            await _supplierService.RemoveAsync(supplierId);
             _logger.Info($"SupplierId: {supplierId} was deleted sucessfully.");
 
-            return Ok();
+            return NoContent();
         }
     }
 }

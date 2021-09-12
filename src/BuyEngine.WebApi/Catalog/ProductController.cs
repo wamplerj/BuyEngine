@@ -1,6 +1,8 @@
-﻿using BuyEngine.Catalog;
+﻿using System;
+using BuyEngine.Catalog;
 using BuyEngine.Common;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using NLog;
 using System.Threading.Tasks;
 
@@ -21,9 +23,9 @@ namespace BuyEngine.WebApi.Catalog
 
         [HttpGet]
         [Route("/be-api/product/{productId}")]
-        public async Task<ActionResult> Get(int productId)
+        public async Task<ActionResult> Get(Guid productId)
         {
-            if (productId <= 0)
+            if (productId == default)
             {
                 _logger.Info($"ProductId is invalid.  Id must be >= 0");
                 return BadRequest($"{productId} is not a valid Product ID");
@@ -31,8 +33,12 @@ namespace BuyEngine.WebApi.Catalog
 
             var product = await _productService.GetAsync(productId);
 
-            if (product != null) 
+            if (product != null)
+            {
+                _logger.Info($"Product: {productId} was found");
+                _logger.Debug(JsonConvert.SerializeObject(product));
                 return Ok(product);
+            }
 
             _logger.Info($"ProductId: {productId} was not found.");
             return NotFound($"ProductId: {productId} was not found");
@@ -59,40 +65,37 @@ namespace BuyEngine.WebApi.Catalog
 
         [HttpPost]
         [Route("/be-api/product")]
-        public ActionResult Add([FromBody] Product product)
+        public async Task<ActionResult> Add([FromBody] Product product)
         {
             Guard.Null(product, nameof(product));
 
-            var validationResult = _productService.Validate(product, requireUniqueSku:true);
+            var validationResult = await _productService.ValidateAsync(product, requireUniqueSku:true);
             if (!validationResult.IsValid)
             {
                 _logger.Info($"Failed to add Product: {product.Sku} due to validation issues");
                 return BadRequest(validationResult.Messages);
             }
 
-            var result = _productService.Add(product);
-            //TODO Get url dynamically
+            var result = await _productService.AddAsync(product);
             return Created($"/be-api/products/{result}", product);
         }
 
         [HttpPut]
         [Route("/be-api/product/{id}")]
-        public ActionResult Update(int id, [FromBody] Product product)
+        public async Task<ActionResult> Update(Guid id, [FromBody] Product product)
         {
             Guard.Null(product, nameof(product));
             product.Id = id;
 
-            var validationResult = _productService.Validate(product, requireUniqueSku:false);
+            var validationResult = await _productService.ValidateAsync(product, requireUniqueSku:false);
             if (!validationResult.IsValid)
             {
                 _logger.Info($"Failed to update Product: {product.Sku} due to validation issues");
                 return BadRequest(validationResult.Messages);
             }
 
-            var result = _productService.Update(product);
+            var result = await _productService.UpdateAsync(product);
             return NoContent();
         }
-        
-        
     }
 }

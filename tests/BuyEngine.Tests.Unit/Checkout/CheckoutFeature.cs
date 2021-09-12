@@ -87,6 +87,11 @@ namespace BuyEngine.Tests.Unit.Checkout
 
             var orderId = await checkoutService.CheckoutAsync(salesOrder);
 
+            _inventoryService.Verify(ii => ii.IsAvailable(It.IsAny<IEnumerable<string>>()), Times.Once);
+            _shippingService.Verify(ss => ss.IsShippingAvailable(It.IsAny<ShippingMethod>(), shipTo), Times.Once);
+            _paymentService.Verify(ps => ps.IsAuthValidAsync(payment), Times.Once);
+            _paymentService.Verify(ps => ps.CollectPaymentAsync(payment), Times.Once);
+
             Assert.That(orderId, Is.Not.EqualTo(Guid.Empty));
         }
 

@@ -40,10 +40,10 @@ namespace BuyEngine.Checkout
 
         private async Task VerifyShippingMethod(SalesOrder salesOrder)
         {
-            var canShip = await _shippingService.IsShippingAvailable(salesOrder.ShippingMethod, salesOrder.BillTo);
+            var canShip = await _shippingService.IsShippingAvailable(salesOrder.ShippingMethod, salesOrder.ShipTo);
             if (!canShip)
                 throw new ShippingMethodNotAvailableException(
-                    $"ShippingMethod: {salesOrder.ShippingMethod.Name} is not available for BillingAddress: {salesOrder.BillTo.ToString()}");
+                    $"ShippingMethod: {salesOrder.ShippingMethod.Name} is not available for Shipping Address: {salesOrder.ShipTo}");
         }
 
         private async Task<Guid> ProcessOrder(SalesOrder salesOrder)

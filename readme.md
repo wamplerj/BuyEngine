@@ -5,7 +5,7 @@ BuyEngine is a .NET 5 library designed to add e-commerce functionality to new or
 
 ## Roadmap
 - ~~Version 0.1 - Basic Product Management functionality (Products, Suppliers, Brands)~~
-- Version 0.2 - Cart Management
+- ~~Version 0.2 - Cart Management~~
 - Version 0.3 - Order Fulfillment, Shipping Providers
 - Version 0.4 - Data Providers (MSSQL, MongoDb, CosomoDb)
 - Version 0.5 - Product Browse By Brand, Search

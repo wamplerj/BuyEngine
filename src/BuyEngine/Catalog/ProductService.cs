@@ -19,7 +19,6 @@ namespace BuyEngine.Catalog
         public async Task<Product> GetAsync(Guid productId)
         {
             var product = await _productRepository.GetAsync(productId);
-
             return product;
         }
 

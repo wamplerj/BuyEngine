@@ -1,7 +1,4 @@
 ﻿using BuyEngine.Common;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace BuyEngine.Catalog
 {
@@ -42,13 +39,11 @@ namespace BuyEngine.Catalog
             return await _productRepository.GetAllBySupplierAsync(supplierId, pageSize, page);
         }
 
-        public async Task<int> AddAsync(Product product)
+        public async Task<Guid> AddAsync(Product product)
         {
             Guard.Null(product, nameof(product));
 
-            var result = await _productValidator.ValidateAsync(product);
-            if (!result.IsValid)
-                throw new ValidationException(result, nameof(product));
+            await _productValidator.ThrowIfInvalidAsync(product, nameof(product));
 
             var id = await _productRepository.AddAsync(product);
             return id;
@@ -103,7 +98,7 @@ namespace BuyEngine.Catalog
         Task<IList<Product>> GetAllBySupplierAsync(Guid supplierId, int pageSize, int page);
 
         Task<bool> IsSkuUniqueAsync(string sku);
-        Task<int> AddAsync(Product product);
+        Task<Guid> AddAsync(Product product);
         Task RemoveAsync(Guid productId);
         Task RemoveAsync(Product product);
         Task<bool> UpdateAsync(Product product);

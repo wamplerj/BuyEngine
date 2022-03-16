@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace BuyEngine.Common
+﻿namespace BuyEngine.Common
 {
     public interface IModelValidator<in T>
     {

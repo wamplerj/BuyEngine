@@ -1,7 +1,4 @@
-﻿using System;
-using BuyEngine.Common;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using BuyEngine.Common;
 
 namespace BuyEngine.Catalog.Brands
 {
@@ -26,7 +23,7 @@ namespace BuyEngine.Catalog.Brands
             return await _brandRepository.GetAllAsync(pageSize, page);
         }
 
-        public async Task<int> AddAsync(Brand brand)
+        public async Task<Guid> AddAsync(Brand brand)
         {
             Guard.Null(brand, nameof(brand));
 
@@ -82,7 +79,7 @@ namespace BuyEngine.Catalog.Brands
     {
         Task<Brand> GetAsync(Guid brandId);
         Task<IList<Brand>> GetAllAsync(int pageSize = 25, int page = 0);
-        Task<int> AddAsync(Brand brand);
+        Task<Guid> AddAsync(Brand brand);
         Task<bool> UpdateAsync(Brand brand);
         Task RemoveAsync(Brand brand);
         Task RemoveAsync(Guid brandId);

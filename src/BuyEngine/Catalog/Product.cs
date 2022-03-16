@@ -1,6 +1,5 @@
 ﻿using BuyEngine.Catalog.Brands;
 using BuyEngine.Catalog.Suppliers;
-using System;
 
 namespace BuyEngine.Catalog
 {
@@ -19,5 +18,7 @@ namespace BuyEngine.Catalog
         public Brand Brand { get; set; }
 
         public Supplier Supplier { get; set; }
+
+        public override string ToString() => $"Product: {Id} - {Sku}";
     }
 }

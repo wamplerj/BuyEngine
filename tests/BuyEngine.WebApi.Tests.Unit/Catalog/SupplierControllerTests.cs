@@ -60,8 +60,8 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
             mockUrlHelper.Setup(urlSetup).Returns("a/mock/url/for/testing").Verifiable();
 
             _controller.Url = mockUrlHelper.Object;
-            
-            _supplierService.Setup(ps => ps.AddAsync(It.IsAny<Supplier>())).ReturnsAsync(1);
+
+            _supplierService.Setup(ps => ps.AddAsync(It.IsAny<Supplier>())).ReturnsAsync(Guid.NewGuid);
             _supplierService.Setup(ss => ss.ValidateAsync(It.IsAny<Supplier>())).ReturnsAsync(new ValidationResult() { });
 
             var result = await _controller.Add(new Supplier());
@@ -85,7 +85,7 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
                 Messages = {{"Bad Value", "Oops"}}
             };
 
-            _supplierService.Setup(ps => ps.AddAsync(It.IsAny<Supplier>())).ReturnsAsync(1);
+            _supplierService.Setup(ps => ps.AddAsync(It.IsAny<Supplier>())).ReturnsAsync(Guid.NewGuid);
             _supplierService.Setup(ss => ss.ValidateAsync(It.IsAny<Supplier>())).ReturnsAsync(validationResult);
 
             var result = await _controller.Add(new Supplier());
@@ -128,7 +128,7 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
                 Messages = { { "Bad Value", "Oops" } }
             };
 
-            _supplierService.Setup(ps => ps.AddAsync(It.IsAny<Supplier>())).ReturnsAsync(1);
+            _supplierService.Setup(ps => ps.AddAsync(It.IsAny<Supplier>())).ReturnsAsync(Guid.NewGuid);
             _supplierService.Setup(ss => ss.ValidateAsync(It.IsAny<Supplier>())).ReturnsAsync(validationResult);
 
             var result = await _controller.Update(new Supplier());

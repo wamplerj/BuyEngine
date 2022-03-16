@@ -60,8 +60,8 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
             mockUrlHelper.Setup(urlSetup).Returns("a/mock/url/for/testing").Verifiable();
 
             _controller.Url = mockUrlHelper.Object;
-            
-            _brandService.Setup(ps => ps.AddAsync(It.IsAny<Brand>())).ReturnsAsync(1);
+
+            _brandService.Setup(ps => ps.AddAsync(It.IsAny<Brand>())).ReturnsAsync(Guid.NewGuid);
             _brandService.Setup(ss => ss.ValidateAsync(It.IsAny<Brand>())).ReturnsAsync(new ValidationResult() { });
 
             var result = await _controller.Add(new Brand());
@@ -85,7 +85,7 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
                 Messages = {{"Bad Value", "Oops"}}
             };
 
-            _brandService.Setup(ps => ps.AddAsync(It.IsAny<Brand>())).ReturnsAsync(1);
+            _brandService.Setup(ps => ps.AddAsync(It.IsAny<Brand>())).ReturnsAsync(Guid.NewGuid);
             _brandService.Setup(ss => ss.ValidateAsync(It.IsAny<Brand>())).ReturnsAsync(validationResult);
 
             var result = await _controller.Add(new Brand());
@@ -128,7 +128,7 @@ namespace BuyEngine.WebApi.Tests.Unit.Catalog
                 Messages = { { "Bad Value", "Oops" } }
             };
 
-            _brandService.Setup(ps => ps.AddAsync(It.IsAny<Brand>())).ReturnsAsync(1);
+            _brandService.Setup(ps => ps.AddAsync(It.IsAny<Brand>())).ReturnsAsync(Guid.NewGuid);
             _brandService.Setup(ss => ss.ValidateAsync(It.IsAny<Brand>())).ReturnsAsync(validationResult);
 
             var result = await _controller.Update(new Brand());

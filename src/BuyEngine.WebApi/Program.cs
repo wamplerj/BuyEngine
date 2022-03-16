@@ -3,9 +3,11 @@ using Microsoft.Extensions.Hosting;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BuyEngine.WebApi
 {
+    [ExcludeFromCodeCoverage]
     public class Program
     {
         public static void Main(string[] args)

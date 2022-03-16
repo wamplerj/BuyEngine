@@ -1,7 +1,4 @@
 ﻿using BuyEngine.Common;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace BuyEngine.Catalog.Suppliers
 {
@@ -26,7 +23,7 @@ namespace BuyEngine.Catalog.Suppliers
             return await _supplierRepository.GetAllAsync(pageSize, page);
         }
 
-        public async Task<int> AddAsync(Supplier supplier)
+        public async Task<Guid> AddAsync(Supplier supplier)
         {
             var result = await _validator.ValidateAsync(supplier);
             if (!result.IsValid)
@@ -79,7 +76,7 @@ namespace BuyEngine.Catalog.Suppliers
     {
         Task<Supplier> GetAsync(Guid supplierId);
         Task<IList<Supplier>> GetAllAsync(int pageSize = 25, int page = 0);
-        Task<int> AddAsync(Supplier supplier);
+        Task<Guid> AddAsync(Supplier supplier);
         Task<bool> UpdateAsync(Supplier supplier);
         Task RemoveAsync(Supplier supplier);
         Task RemoveAsync(Guid supplierId);

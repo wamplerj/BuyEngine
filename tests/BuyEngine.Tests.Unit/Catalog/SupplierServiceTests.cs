@@ -1,8 +1,8 @@
-﻿using System;
-using BuyEngine.Catalog.Suppliers;
+﻿using BuyEngine.Catalog.Suppliers;
 using BuyEngine.Common;
 using Moq;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -74,7 +74,7 @@ namespace BuyEngine.Tests.Unit.Catalog
         [Test]
         public async Task Adding_A_Valid_Supplier_Succeeds()
         {
-            _supplierRepository.Setup(sr => sr.AddAsync(It.IsAny<Supplier>())).ReturnsAsync(1);
+            _supplierRepository.Setup(sr => sr.AddAsync(It.IsAny<Supplier>())).ReturnsAsync(Guid.NewGuid);
             var supplier = new Supplier() { Name = "Test" };
             await _supplierService.AddAsync(supplier);
 

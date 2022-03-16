@@ -1,9 +1,9 @@
-﻿using System;
-using BuyEngine.Catalog;
+﻿using BuyEngine.Catalog;
 using BuyEngine.Common;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using NLog;
+using System;
 using System.Threading.Tasks;
 
 namespace BuyEngine.WebApi.Catalog

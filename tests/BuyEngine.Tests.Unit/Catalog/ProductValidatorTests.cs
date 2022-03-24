@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using BuyEngine.Catalog;
+﻿using BuyEngine.Catalog;
 using Moq;
 using NUnit.Framework;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BuyEngine.Tests.Unit.Catalog
@@ -22,12 +22,14 @@ namespace BuyEngine.Tests.Unit.Catalog
         [Test]
         public async Task A_Valid_Product_Returns_IsValid_And_Has_No_Messages()
         {
-            _productRepository.Setup(pr => pr.ExistsAsync(It.IsAny<string>())).ReturnsAsync(true);
+            _productRepository.Setup(pr => pr.ExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
 
             var product = new Product
             {
                 Sku = "ABC-123",
-                Name = "Test Product"
+                Name = "Test Product",
+                Price = 1.0m,
+                Quantity = 1
             };
 
 
@@ -50,6 +52,22 @@ namespace BuyEngine.Tests.Unit.Catalog
             Assert.That(result.IsValid, Is.False);
             Assert.That(result.Messages.Count, Is.EqualTo(1));
             Assert.That(result.Messages.First().Key, Is.EqualTo(nameof(product.Sku)));
+        }
+
+        [Test]
+        public async Task A_Disabled_Product_With_No_Sku_Passes_Validation()
+        {
+            _productRepository.Setup(pr => pr.ExistsAsync(It.IsAny<string>())).ReturnsAsync(true);
+
+            var product = new Product
+            {
+                Name = "Test Product",
+                Enabled = false
+            };
+
+            var result = await _validator.ValidateAsync(product);
+            Assert.That(result.IsValid, Is.True);
+            Assert.That(result.Messages.Count, Is.EqualTo(0));
         }
 
         [Test]

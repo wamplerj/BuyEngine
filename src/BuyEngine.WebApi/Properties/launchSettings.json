@@ -1,4 +1,5 @@
 {
+  "$schema": "http://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -7,12 +8,11 @@
       "sslPort": 44389
     }
   },
-  "$schema": "http://json.schemastore.org/launchsettings.json",
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "weatherforecast",
+      "launchUrl": "be-api/docs",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -20,7 +20,7 @@
     "BuyEngine.WebApi": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "be-api/product/1",
+      "launchUrl": "be-api/docs",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
@@ -29,7 +29,7 @@
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/be-api",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/be-api/docs",
       "publishAllPorts": true,
       "useSSL": true
     }

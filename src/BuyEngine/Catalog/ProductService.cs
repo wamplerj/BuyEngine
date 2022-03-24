@@ -1,4 +1,5 @@
 ﻿using BuyEngine.Common;
+using Microsoft.Extensions.Logging;
 
 namespace BuyEngine.Catalog
 {
@@ -6,21 +7,27 @@ namespace BuyEngine.Catalog
     {
         private readonly IProductRepository _productRepository;
         private readonly IProductValidator _productValidator;
+        private readonly ILogger<ProductService> _logger;
 
-        public ProductService(IProductRepository productRepository, IProductValidator productValidator)
+        public ProductService(IProductRepository productRepository, IProductValidator productValidator, ILogger<ProductService> logger)
         {
             _productRepository = productRepository;
             _productValidator = productValidator;
+            _logger = logger;
         }
 
         public async Task<Product> GetAsync(Guid productId)
         {
+            Guard.Default(productId, nameof(productId));
+
             var product = await _productRepository.GetAsync(productId);
             return product;
         }
 
         public async Task<Product> GetAsync(string sku)
         {
+            Guard.Empty(sku, nameof(sku));
+
             return await _productRepository.GetAsync(sku);
         }
         
@@ -31,11 +38,15 @@ namespace BuyEngine.Catalog
 
         public async Task<IList<Product>> GetAllByBrandAsync(Guid brandId, int pageSize, int page)
         {
+            Guard.Default(brandId, nameof(brandId));
+
             return await _productRepository.GetAllByBrandAsync(brandId, pageSize, page);
         }
 
         public async Task<IList<Product>> GetAllBySupplierAsync(Guid supplierId, int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
         {
+            Guard.Default(supplierId, nameof(supplierId));
+
             return await _productRepository.GetAllBySupplierAsync(supplierId, pageSize, page);
         }
 
@@ -53,9 +64,7 @@ namespace BuyEngine.Catalog
         {
             Guard.Null(product, nameof(product));
 
-            var result = await _productValidator.ValidateAsync(product, requireUniqueSku:false);
-            if (!result.IsValid)
-                throw new ValidationException(result, nameof(product));
+            await _productValidator.ThrowIfInvalidAsync(product, nameof(product));
 
             var success = await _productRepository.UpdateAsync(product);
             return success;
@@ -64,6 +73,20 @@ namespace BuyEngine.Catalog
         public async Task RemoveAsync(Product product)
         {
             Guard.Null(product, nameof(product));
+
+            if (product.Quantity > 0)
+            {
+                _logger.LogInformation($"Product {product.Sku} has current inventory and can not be removed.  It was disabled instead.", product);
+
+                product.Enabled = false;
+                product.Sku = string.Empty;
+
+                await UpdateAsync(product);
+                return;
+            }
+
+            //TODO Ensure no orders exist for product
+
             await _productRepository.RemoveAsync(product);
         }
 
@@ -75,16 +98,20 @@ namespace BuyEngine.Catalog
             if (product == null)
                 throw new ArgumentException("ProductId could not be found", nameof(productId));
 
-            await _productRepository.RemoveAsync(product);
+            await RemoveAsync(product);
         }
 
         public Task<bool> IsSkuUniqueAsync(string sku)
         {
+            Guard.Empty(sku, nameof(sku));
+
             return _productValidator.IsSkuUniqueAsync(sku);
         }
 
-        public async Task<ValidationResult> ValidateAsync(Product product, bool requireUniqueSku)
+        public async Task<ValidationResult> ValidateAsync(Product product, bool requireUniqueSku = true)
         {
+            Guard.Default(product, nameof(product));
+
             return await _productValidator.ValidateAsync(product, requireUniqueSku);
         }
     }
@@ -102,7 +129,6 @@ namespace BuyEngine.Catalog
         Task RemoveAsync(Guid productId);
         Task RemoveAsync(Product product);
         Task<bool> UpdateAsync(Product product);
-        Task<ValidationResult> ValidateAsync(Product product, bool requireUniqueSku);
-        
+        Task<ValidationResult> ValidateAsync(Product product, bool requireUniqueSku = true);
     }
 }

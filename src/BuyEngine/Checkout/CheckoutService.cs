@@ -2,9 +2,6 @@
 using BuyEngine.Checkout.Shipping;
 using BuyEngine.Common;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BuyEngine.Checkout
 {

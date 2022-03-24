@@ -31,7 +31,7 @@ namespace BuyEngine.Catalog
 
         public async Task<PagedList<Product>> GetAllAsync(int pageSize, int page)
         {
-            var skipCount = pageSize * (page - 1); //TODO Refactor logic To Common
+            var skipCount = page.SkipCount(pageSize);
             skipCount = skipCount < pageSize ? 0 : skipCount;
 
             return _products.Skip(skipCount).Take(pageSize).ToPagedList(pageSize, page, _products.Count);
@@ -39,7 +39,7 @@ namespace BuyEngine.Catalog
 
         public async Task<PagedList<Product>> GetAllBySupplierAsync(Guid supplierId, int pageSize, int page)
         {
-            var skipCount = pageSize * page + 1;
+            var skipCount = page.SkipCount(pageSize);
             var products = _products
                 .Where(p => p.Supplier.Id == supplierId)
                 .Skip(skipCount)
@@ -51,14 +51,14 @@ namespace BuyEngine.Catalog
 
         public async Task<PagedList<Product>> GetAllByBrandAsync(Guid brandId, int pageSize, int page)
         {
-            var skipCount = pageSize * page + 1;
+            var skipCount = page.SkipCount(pageSize);
             var products = _products
                 .Where(p => p.Brand.Id == brandId)
                 .Skip(skipCount)
                 .Take(pageSize)
-                .ToPagedList(pageSize, page, _products.Count);
+                .ToList();
 
-            return products;
+            return products.ToPagedList(pageSize, page, _products.Count);
         }
 
         public async Task<Guid> AddAsync(Product product)

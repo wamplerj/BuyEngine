@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using NLog;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BuyEngine.WebApi.Catalog
 {
-    [Route("be-api/products")]
+    [Route("products")]
     [ApiController]
     public class ProductController : ControllerBase
     {
@@ -22,7 +23,24 @@ namespace BuyEngine.WebApi.Catalog
         }
 
         [HttpGet]
-        [Route("/be-api/product/{productId}")]
+        public async Task<ActionResult> Get(int page = 1, int pageSize = 25)
+        {
+            var products = await _productService.GetAllAsync(pageSize, page);
+
+            if (products.Any())
+            {
+                _logger.Info($"{products.Count} Products were found on Page: {page}, PageSize: {pageSize}");
+                _logger.Debug(JsonConvert.SerializeObject(products));
+                return Ok(products);
+            }
+
+            _logger.Warn($"No Products were found on Page: {page}, PageSize: {pageSize}");
+            return NotFound("No Products were found");
+        }
+
+
+        [HttpGet]
+        [Route("product/{productId}")]
         public async Task<ActionResult> Get(Guid productId)
         {
             if (productId == default)
@@ -45,7 +63,7 @@ namespace BuyEngine.WebApi.Catalog
         }
 
         [HttpGet]
-        [Route("/be-api/product/sku/{sku}")]
+        [Route("product/sku/{sku}")]
         public async Task<ActionResult> Get(string sku)
         {
             if (string.IsNullOrEmpty(sku))
@@ -64,7 +82,7 @@ namespace BuyEngine.WebApi.Catalog
         }
 
         [HttpPost]
-        [Route("/be-api/product")]
+        [Route("product")]
         public async Task<ActionResult> Add([FromBody] Product product)
         {
             Guard.Null(product, nameof(product));
@@ -81,7 +99,7 @@ namespace BuyEngine.WebApi.Catalog
         }
 
         [HttpPut]
-        [Route("/be-api/product/{id}")]
+        [Route("product/{id}")]
         public async Task<ActionResult> Update(Guid id, [FromBody] Product product)
         {
             Guard.Null(product, nameof(product));

@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
+
 // ReSharper disable PossibleMultipleEnumeration
 
 namespace BuyEngine.Common
@@ -70,7 +69,7 @@ namespace BuyEngine.Common
 
         public bool Remove(T item)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public int Count => _items.Count;
@@ -104,5 +103,7 @@ namespace BuyEngine.Common
         {
             return new(list, pageSize, page, totalCount);
         }
+
+        public static int SkipCount(this int page, int pageSize) => pageSize * (page - 1);
     }
 }

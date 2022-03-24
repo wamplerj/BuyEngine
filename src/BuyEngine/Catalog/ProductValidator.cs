@@ -11,16 +11,13 @@ namespace BuyEngine.Catalog
             _productRepository = productRepository;
         }
 
-        public async Task<ValidationResult> ValidateAsync(Product product)
-        {
-            return await ValidateAsync(product, true);
-        }
+        public async Task<ValidationResult> ValidateAsync(Product product) => await ValidateAsync(product, true);
 
         public async Task<ValidationResult> ValidateAsync(Product product, bool requireUniqueSku)
         {
             var result = new ValidationResult();
 
-            if (string.IsNullOrWhiteSpace(product.Sku))
+            if (string.IsNullOrWhiteSpace(product.Sku) && product.Enabled)
                 result.AddMessage(nameof(product.Sku), "Product SKU is Required");
 
             if (string.IsNullOrWhiteSpace(product.Name))
@@ -29,8 +26,8 @@ namespace BuyEngine.Catalog
             if(product.Price < decimal.Zero)
                 result.AddMessage(nameof(product.Price), $"Product {nameof(product.Price)} must be greater then or equal to zero");
 
-            if (!requireUniqueSku) return result;
-            
+            if (!requireUniqueSku || !product.Enabled) return result;
+
             var unique = await IsSkuUniqueAsync(product.Sku);
             if (!unique)
                 result.AddMessage(nameof(product.Sku), "Product SKU must be Unique");
@@ -40,7 +37,11 @@ namespace BuyEngine.Catalog
 
         public async Task<bool> IsSkuUniqueAsync(string sku)
         {
-            return await _productRepository.ExistsAsync(sku);
+            if (string.IsNullOrWhiteSpace(sku))
+                return true; //HACK: Can't have two Sku messages.  Need to refactor
+
+            var exists = await _productRepository.ExistsAsync(sku);
+            return !exists;
         }
     }
 

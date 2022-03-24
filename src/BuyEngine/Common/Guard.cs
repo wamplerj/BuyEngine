@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace BuyEngine.Common
+﻿namespace BuyEngine.Common
 {
     public static class Guard
     {

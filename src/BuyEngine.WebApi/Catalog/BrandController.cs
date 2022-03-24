@@ -1,7 +1,7 @@
-﻿using System;
-using BuyEngine.Catalog.Brands;
+﻿using BuyEngine.Catalog.Brands;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
+using System;
 using System.Threading.Tasks;
 
 namespace BuyEngine.WebApi.Catalog

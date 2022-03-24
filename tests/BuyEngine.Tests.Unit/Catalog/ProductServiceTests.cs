@@ -1,5 +1,6 @@
 using BuyEngine.Catalog;
 using BuyEngine.Common;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -11,19 +12,21 @@ namespace BuyEngine.Tests.Unit.Catalog
     public class ProductServiceTests
     {
         private Mock<IProductRepository> _productRepository;
+        private Mock<ILogger<ProductService>> _logger;
         private ProductService _productService;
 
         [SetUp]
         public void Setup()
         {
             _productRepository = new Mock<IProductRepository>();
-            _productService = new ProductService(_productRepository.Object, new ProductValidator(_productRepository.Object));
+            _logger = new Mock<ILogger<ProductService>>();
+            _productService = new ProductService(_productRepository.Object, new ProductValidator(_productRepository.Object), _logger.Object);
         }
 
         [Test]
         public async Task A_Valid_Product_Can_Be_Created()
         {
-            _productRepository.Setup(pr => pr.ExistsAsync(It.IsAny<string>())).ReturnsAsync(true);
+            _productRepository.Setup(pr => pr.ExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
 
             var product = new Product
             {
@@ -34,6 +37,7 @@ namespace BuyEngine.Tests.Unit.Catalog
 
             var result = await _productService.AddAsync(product);
             _productRepository.Verify(pr => pr.AddAsync(product), Times.Once);
+            Assert.That(product.ToString(), Is.EqualTo("Product: 00000000-0000-0000-0000-000000000000 - ABC-123"));
         }
 
         [Test]
@@ -94,6 +98,76 @@ namespace BuyEngine.Tests.Unit.Catalog
 
             var result = await _productService.IsSkuUniqueAsync("ABC-123");
             _productRepository.Verify(pr => pr.ExistsAsync(It.IsAny<string>()), Times.Once);
+        }
+
+        [Test]
+        public async Task Product_That_Does_Not_Exist_Can_Not_Be_Removed()
+        {
+            _productRepository.Setup(pr => pr.GetAsync(It.IsAny<Guid>())).ReturnsAsync(null as Product);
+
+            Assert.ThrowsAsync<ArgumentException>(() => _productService.RemoveAsync(Guid.NewGuid()));
+        }
+
+        [Test]
+        public async Task Product_With_No_Inventory_Can_Be_Removed_By_Id()
+        {
+            var product = new Product
+            {
+                Id = Guid.NewGuid(),
+                Sku = "TST-123",
+                Name = "Test 123",
+                Enabled = true,
+                Quantity = 0
+            };
+
+            _productRepository.Setup(pr => pr.GetAsync(product.Id)).ReturnsAsync(product);
+
+            await _productService.RemoveAsync(product.Id);
+
+            _productRepository.Verify(pr => pr.RemoveAsync(product), Times.Once);
+        }
+
+        [Test]
+        public async Task Product_With_Inventory_Can_Be_Not_Removed_By_Id_But_Is_Disabled()
+        {
+            var product = new Product
+            {
+                Id = Guid.NewGuid(),
+                Sku = "TST-123",
+                Name = "Test 123",
+                Enabled = true,
+                Quantity = 10
+            };
+
+            _productRepository.Setup(pr => pr.GetAsync(product.Id)).ReturnsAsync(product);
+
+            await _productService.RemoveAsync(product.Id);
+
+            _productRepository.Verify(pr => pr.RemoveAsync(product), Times.Never);
+            _productRepository.Verify(pr => pr.UpdateAsync(product), Times.Once);
+
+            Assert.That(product.Sku, Is.Empty);
+            Assert.That(product.Enabled, Is.False);
+        }
+
+        [Test]
+        public async Task A_Product_Can_Be_Validated_Before_Being_Saved()
+        {
+            var product = new Product
+            {
+                Id = Guid.NewGuid(),
+                Sku = "TST-123",
+                Name = "Test 123",
+                Enabled = true,
+                Quantity = 10
+            };
+
+            _productRepository.Setup(pr => pr.ExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
+
+            var result = await _productService.ValidateAsync(product);
+            Assert.That(result.IsValid, Is.True);
+
+            _productRepository.Verify(pr => pr.ExistsAsync(product.Sku), Times.Once);
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using BuyEngine.Catalog;
+using BuyEngine.Catalog.Brands;
+using BuyEngine.Catalog.Suppliers;
 using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
@@ -123,6 +125,74 @@ namespace BuyEngine.Tests.Unit.Catalog
             products = await _repository.GetAllAsync(10, 2);
             Assert.That(products.Count, Is.EqualTo(10));
             Assert.That(products[4].Sku, Is.EqualTo("TST-SKU-15"));
+        }
+
+        [Test]
+        public async Task All_Products_By_Brand_Can_Be_Returned()
+        {
+            var brand1 = new Brand
+            {
+                Id = Guid.NewGuid(),
+                Name = "Brand A"
+            };
+
+            var brand2 = new Brand
+            {
+                Id = Guid.NewGuid(),
+                Name = "Brand B"
+            };
+
+            for (var i = 1; i <= 20; i++)
+            {
+                var product = new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Sku = $"TST-SKU-{i}",
+                    Brand = i % 2 == 0 ? brand1 : brand2
+                };
+
+                await _repository.AddAsync(product);
+            }
+
+            var products = await _repository.GetAllByBrandAsync(brand1.Id, 10, 1);
+
+            Assert.That(products.Count, Is.EqualTo(10));
+            Assert.That(products[0].Sku, Is.EqualTo("TST-SKU-2"));
+            Assert.That(products[9].Sku, Is.EqualTo("TST-SKU-20"));
+        }
+
+        [Test]
+        public async Task All_Products_By_Supplier_Can_Be_Returned()
+        {
+            var supplier1 = new Supplier
+            {
+                Id = Guid.NewGuid(),
+                Name = "Supplier A"
+            };
+
+            var supplier2 = new Supplier
+            {
+                Id = Guid.NewGuid(),
+                Name = "Supplier B"
+            };
+
+            for (var i = 1; i <= 20; i++)
+            {
+                var product = new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Sku = $"TST-SKU-{i}",
+                    Supplier = i % 2 == 0 ? supplier1 : supplier2
+                };
+
+                await _repository.AddAsync(product);
+            }
+
+            var products = await _repository.GetAllBySupplierAsync(supplier1.Id, 10, 1);
+
+            Assert.That(products.Count, Is.EqualTo(10));
+            Assert.That(products[0].Sku, Is.EqualTo("TST-SKU-2"));
+            Assert.That(products[9].Sku, Is.EqualTo("TST-SKU-20"));
         }
     }
 }

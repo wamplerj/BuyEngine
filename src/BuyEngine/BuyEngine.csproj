@@ -5,6 +5,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://www.buyengine.net</PackageProjectUrl>
     <Copyright />
+    <Authors>James Wampler</Authors>
     <RepositoryUrl>https://github.com/wamplerj/buyengine</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>ecommerce, shopping, cart</PackageTags>

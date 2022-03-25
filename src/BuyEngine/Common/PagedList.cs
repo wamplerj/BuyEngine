@@ -5,7 +5,7 @@
 namespace BuyEngine.Common
 {
     [Serializable]
-    public class PagedList<T> : IList<T>
+    public class PagedList<T> : IReadOnlyList<T>, IPagedList<T>
     {
         private readonly List<T> _items;
 
@@ -36,65 +36,21 @@ namespace BuyEngine.Common
             Page = page;
             TotalCount = totalCount;
         }
-        
-        public IEnumerator<T> GetEnumerator()
-        {
-            return _items.GetEnumerator();
-        }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        public IEnumerator<T> GetEnumerator() => _items.GetEnumerator();
 
-        public void Add(T item)
-        {
-            _items.Add(item);
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public void Clear()
-        {
-            _items.Clear();
-        }
-
-        public bool Contains(T item)
-        {
-            return _items.Contains(item);
-        }
-
-        public void CopyTo(T[] array, int arrayIndex)
-        {
-            _items.CopyTo(array, arrayIndex);
-        }
-
-        public bool Remove(T item)
-        {
-            throw new NotImplementedException();
-        }
+        public bool Contains(T item) => _items.Contains(item);
 
         public int Count => _items.Count;
-        public bool IsReadOnly => false;
 
         public int IndexOf(T item)
         {
             return _items.IndexOf(item);
         }
 
-        public void Insert(int index, T item)
-        {
-            _items.Insert(index, item);
-        }
-
-        public void RemoveAt(int index)
-        {
-            _items.RemoveAt(index);
-        }
-
-        public T this[int index]
-        {
-            get => _items[index];
-            set => _items[index] = value;
-        }
+        public T this[int index] => _items[index];
     }
 
     public static class PagesListExtensions
@@ -105,5 +61,17 @@ namespace BuyEngine.Common
         }
 
         public static int SkipCount(this int page, int pageSize) => pageSize * (page - 1);
+    }
+
+    public interface IPagedList<T> : IEnumerable<T>
+    {
+        int TotalCount { get; }
+        int Page { get; }
+        int TotalPages { get; }
+        int PageSize { get; }
+        int Count { get; }
+        bool Contains(T item);
+        int IndexOf(T item);
+        T this[int index] { get; }
     }
 }

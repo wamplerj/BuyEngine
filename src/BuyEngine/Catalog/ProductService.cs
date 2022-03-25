@@ -30,20 +30,18 @@ namespace BuyEngine.Catalog
 
             return await _productRepository.GetAsync(sku);
         }
-        
-        public async Task<IList<Product>> GetAllAsync(int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
-        {
-            return await _productRepository.GetAllAsync(pageSize, page);
-        }
 
-        public async Task<IList<Product>> GetAllByBrandAsync(Guid brandId, int pageSize, int page)
+        public async Task<IPagedList<Product>> GetAllAsync(int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0) => await _productRepository.GetAllAsync(pageSize, page);
+
+        public async Task<IPagedList<Product>> GetAllByBrandAsync(Guid brandId, int pageSize, int page)
         {
             Guard.Default(brandId, nameof(brandId));
 
             return await _productRepository.GetAllByBrandAsync(brandId, pageSize, page);
         }
 
-        public async Task<IList<Product>> GetAllBySupplierAsync(Guid supplierId, int pageSize = CatalogConfiguration.DefaultRecordsPerPage, int page = 0)
+        public async Task<IPagedList<Product>> GetAllBySupplierAsync(Guid supplierId, int pageSize = CatalogConfiguration.DefaultRecordsPerPage,
+            int page = 0)
         {
             Guard.Default(supplierId, nameof(supplierId));
 
@@ -120,9 +118,9 @@ namespace BuyEngine.Catalog
     {
         Task<Product> GetAsync(Guid productId);
         Task<Product> GetAsync(string sku);
-        Task<IList<Product>> GetAllAsync(int pageSize, int page);
-        Task<IList<Product>> GetAllByBrandAsync(Guid brandId, int pageSize, int page);
-        Task<IList<Product>> GetAllBySupplierAsync(Guid supplierId, int pageSize, int page);
+        Task<IPagedList<Product>> GetAllAsync(int pageSize, int page);
+        Task<IPagedList<Product>> GetAllByBrandAsync(Guid brandId, int pageSize, int page);
+        Task<IPagedList<Product>> GetAllBySupplierAsync(Guid supplierId, int pageSize, int page);
 
         Task<bool> IsSkuUniqueAsync(string sku);
         Task<Guid> AddAsync(Product product);

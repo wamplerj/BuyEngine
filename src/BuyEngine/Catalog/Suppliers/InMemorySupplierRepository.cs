@@ -32,6 +32,9 @@ internal class InMemorySupplierRepository : ISupplierRepository
 
     public async Task<Guid> AddAsync(Supplier supplier)
     {
+        if (_suppliers.Any(b => b.Id == supplier.Id))
+            throw new ArgumentException($"Brand Id: {supplier.Id} already exists");
+
         supplier.Id = Guid.NewGuid();
         _suppliers.Add(supplier);
 

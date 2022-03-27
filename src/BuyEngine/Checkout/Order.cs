@@ -1,7 +1,5 @@
-﻿namespace BuyEngine.Checkout
+﻿namespace BuyEngine.Checkout;
+
+public class Order
 {
-    public class Order
-    {
-        
-    }
 }

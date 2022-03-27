@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿namespace BuyEngine.Checkout;
 
-namespace BuyEngine.Checkout
+public class Cart
 {
-    public class Cart
-    {
-        public Guid Id { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime Expires { get; set; }
+    public Guid Id { get; set; }
+    public DateTime Created { get; set; }
+    public DateTime Expires { get; set; }
 
-        public List<CartItem> Items { get; set; } = new();
+    public List<CartItem> Items { get; set; } = new();
 
-        public decimal Total => Items.Sum(i => i.Total);
+    public decimal Total => Items.Sum(i => i.Total);
 
-        public bool IsExpired => Expires <= DateTime.UtcNow;
-    }
+    public bool IsExpired => Expires <= DateTime.UtcNow;
 }

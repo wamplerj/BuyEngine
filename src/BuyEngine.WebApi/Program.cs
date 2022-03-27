@@ -5,49 +5,46 @@ using NLog.Config;
 using NLog.Targets;
 using System.Diagnostics.CodeAnalysis;
 
-namespace BuyEngine.WebApi
+namespace BuyEngine.WebApi;
+
+[ExcludeFromCodeCoverage]
+public class Program
 {
-    [ExcludeFromCodeCoverage]
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        try
         {
-            try
-            {
-                LogManager.Configuration = ConfigureNLog();
-                CreateHostBuilder(args).Build().Run();
-            }
-            finally
-            {
-                LogManager.Shutdown();
-            }
+            LogManager.Configuration = ConfigureNLog();
+            CreateHostBuilder(args).Build().Run();
         }
-
-        public static IHostBuilder CreateHostBuilder(string[] args)
+        finally
         {
-            return Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+            LogManager.Shutdown();
         }
+    }
 
-        public static LoggingConfiguration ConfigureNLog()
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+
+    public static LoggingConfiguration ConfigureNLog()
+    {
+        var loggingConfig = new LoggingConfiguration();
+
+        // Targets where to log to: File and Console
+        var logfile = new FileTarget("logfile")
         {
-            var loggingConfig = new LoggingConfiguration();
+            FileName = "../../../../../logs/BuyEngine.WebApi/log.txt",
+            ArchiveFileName = "log-{#}.txt",
+            ArchiveNumbering = ArchiveNumberingMode.Date,
+            ArchiveDateFormat = "yyyyMMdd-HH",
+            Layout = "${longDate}|${level:uppercase=true}|${logger}|${callsite}|${message}"
+        };
+        var logconsole = new ConsoleTarget("logconsole");
 
-            // Targets where to log to: File and Console
-            var logfile = new FileTarget("logfile")
-            {
-                FileName = "../../../../../logs/BuyEngine.WebApi/log.txt",
-                ArchiveFileName = "log-{#}.txt",
-                ArchiveNumbering = ArchiveNumberingMode.Date,
-                ArchiveDateFormat = "yyyyMMdd-HH",
-                Layout = "${longDate}|${level:uppercase=true}|${logger}|${callsite}|${message}"
-            };
-            var logconsole = new ConsoleTarget("logconsole");
+        // Rules for mapping loggers to targets            
+        loggingConfig.AddRule(LogLevel.Info, LogLevel.Fatal, logconsole);
+        loggingConfig.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile);
 
-            // Rules for mapping loggers to targets            
-            loggingConfig.AddRule(LogLevel.Info, LogLevel.Fatal, logconsole);
-            loggingConfig.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile);
-
-            return loggingConfig;
-        }
+        return loggingConfig;
     }
 }

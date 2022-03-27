@@ -1,14 +1,8 @@
 ﻿using BuyEngine.Common;
-using System;
-using System.Threading.Tasks;
 
-namespace BuyEngine.Checkout
+namespace BuyEngine.Checkout;
+
+public class SalesOrderValidator : IModelValidator<SalesOrder>
 {
-    public class SalesOrderValidator : IModelValidator<SalesOrder>
-    {
-        public Task<ValidationResult> ValidateAsync(SalesOrder model)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    public Task<ValidationResult> ValidateAsync(SalesOrder model) => throw new NotImplementedException();
 }

@@ -11,62 +11,61 @@ using Newtonsoft.Json;
 using NLog.Web;
 using System.Diagnostics.CodeAnalysis;
 
-namespace BuyEngine.WebApi
+namespace BuyEngine.WebApi;
+
+[ExcludeFromCodeCoverage]
+public class Startup
 {
-    [ExcludeFromCodeCoverage]
-    public class Startup
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
+        Configuration = configuration;
+    }
+
+    public IConfiguration Configuration { get; }
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+        //TODO Add Sql Data Configuration
+
+        services.AddControllers().AddNewtonsoftJson(options =>
+            options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        );
+
+        services.AddLogging(loggingBuilder =>
         {
-            Configuration = configuration;
-        }
+            // configure Logging with NLog
+            loggingBuilder.ClearProviders();
+            loggingBuilder.SetMinimumLevel(LogLevel.Trace);
+            loggingBuilder.AddNLogWeb();
+        });
 
-        public IConfiguration Configuration { get; }
+        services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "BuyEngine API Documentation", Version = "v1" }); });
 
-        public void ConfigureServices(IServiceCollection services)
+        //services.AddControllers();
+        services.AddCatalogServices();
+        services.AddCheckoutServices();
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+            app.UseDeveloperExceptionPage();
+
+        app.UseStaticFiles();
+        app.UseHttpsRedirection();
+        app.UsePathBase("/be-api"); //TODO Make PathBase Configurable
+        app.UseRouting();
+        app.UseAuthorization();
+        app.UseEndpoints(endpoints =>
         {
-            //TODO Add Sql Data Configuration
-
-            services.AddControllers().AddNewtonsoftJson(options =>
-                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            );
-
-            services.AddLogging(loggingBuilder =>
-            {
-                // configure Logging with NLog
-                loggingBuilder.ClearProviders();
-                loggingBuilder.SetMinimumLevel(LogLevel.Trace);
-                loggingBuilder.AddNLogWeb();
-            });
-
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "BuyEngine API Documentation", Version = "v1" }); });
-
-            //services.AddControllers();
-            services.AddCatalogServices();
-            services.AddCheckoutServices();
-        }
-
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+            endpoints.MapControllers();
+            endpoints.MapSwagger();
+        });
+        app.UseSwagger(sw => sw.RouteTemplate = "/docs/{documentName}/swagger.json");
+        app.UseSwaggerUI(ui =>
         {
-            if (env.IsDevelopment())
-                app.UseDeveloperExceptionPage();
-
-            app.UseStaticFiles();
-            app.UseHttpsRedirection();
-            app.UsePathBase("/be-api"); //TODO Make PathBase Configurable
-            app.UseRouting();
-            app.UseAuthorization();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-                endpoints.MapSwagger();
-            });
-            app.UseSwagger(sw => sw.RouteTemplate = "/docs/{documentName}/swagger.json");
-            app.UseSwaggerUI(ui =>
-            {
-                ui.SwaggerEndpoint("/docs/v1/swagger.json", "BuyEngine API Documentation");
-                ui.RoutePrefix = "docs";
-            });
-        }
+            ui.SwaggerEndpoint("/docs/v1/swagger.json", "BuyEngine API Documentation");
+            ui.RoutePrefix = "docs";
+        });
     }
 }

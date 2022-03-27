@@ -1,18 +1,16 @@
-﻿using System.Threading.Tasks;
-using BuyEngine.Common;
+﻿using BuyEngine.Common;
 
-namespace BuyEngine.Catalog.Brands
+namespace BuyEngine.Catalog.Brands;
+
+public class BrandValidator : IModelValidator<Brand>
 {
-    public class BrandValidator : IModelValidator<Brand>
+    public async Task<ValidationResult> ValidateAsync(Brand brand)
     {
-        public async Task<ValidationResult> ValidateAsync(Brand brand)
-        {
-            var result = new ValidationResult();
+        var result = new ValidationResult();
 
-            if (string.IsNullOrWhiteSpace(brand.Name))
-                result.AddMessage(nameof(brand.Name), $"{nameof(brand.Name)} is Required");
+        if (string.IsNullOrWhiteSpace(brand.Name))
+            result.AddMessage(nameof(brand.Name), $"{nameof(brand.Name)} is Required");
 
-            return result;
-        }
+        return result;
     }
 }

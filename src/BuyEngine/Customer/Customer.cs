@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace BuyEngine.Customer;
 
-namespace BuyEngine.Customer
+public class Customer
 {
-    public class Customer
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public Dictionary<string, Address> Addresses { get; set; } = new();
-    }
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public Dictionary<string, Address> Addresses { get; set; } = new();
 }

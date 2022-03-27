@@ -10,5 +10,4 @@ public class Address
     public string StateProvince { get; set; }
     public string CountryRegion { get; set; }
     public string PostalCode { get; set; }
-
 }

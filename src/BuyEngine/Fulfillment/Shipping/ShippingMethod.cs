@@ -1,8 +1,6 @@
-﻿namespace BuyEngine.Fulfillment.Shipping
+﻿namespace BuyEngine.Fulfillment.Shipping;
+
+public class ShippingMethod
 {
-    public class ShippingMethod
-    {
-        public string Name { get; set; }
-        
-    }
+    public string Name { get; set; }
 }

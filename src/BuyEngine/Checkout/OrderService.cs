@@ -1,20 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿namespace BuyEngine.Checkout;
 
-namespace BuyEngine.Checkout
+public class OrderService : IOrderService
 {
+    public async Task<Guid> AddAsync(Order order) => throw new NotImplementedException();
+}
 
-    public class OrderService : IOrderService
-    {
-        public async Task<Guid> AddAsync(Order order)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-
-    public interface IOrderService
-    {
-        Task<Guid> AddAsync(Order order);
-    }
+public interface IOrderService
+{
+    Task<Guid> AddAsync(Order order);
 }

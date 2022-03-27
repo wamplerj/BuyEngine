@@ -1,18 +1,14 @@
-﻿using System;
+﻿namespace BuyEngine.Common;
 
-namespace BuyEngine.Common
+public class ValidationException : Exception
 {
-    public class ValidationException : Exception
+    public ValidationException(ValidationResult validationResult, string model)
     {
-        public ValidationException(ValidationResult validationResult, string model)
-        {
-            ValidationResult = validationResult;
-            Model = model;
-        }
-
-        public ValidationResult ValidationResult { get; }
-
-        public string Model { get; } 
-        
+        ValidationResult = validationResult;
+        Model = model;
     }
+
+    public ValidationResult ValidationResult { get; }
+
+    public string Model { get; }
 }

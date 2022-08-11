@@ -52,10 +52,7 @@ namespace BuyEngine.Data.Sql
             return products;
         }
 
-        public async Task<int> AddAsync(Product product)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<Guid> AddAsync(Product product) => throw new NotImplementedException();
 
         public async Task<bool> UpdateAsync(Product product)
         {

@@ -5,7 +5,7 @@ namespace BuyEngine.Checkout.Shipping;
 public class ShippingService : IShippingService
 {
     public async Task<List<ShippingMethod>> GetAvailableShippingMethods(Address address) =>
-        new List<ShippingMethod>
+        new()
         {
             new() { Name = "In-Store Pickup", Price = 0.00m, Timeframe = "2 Hours" }
         };

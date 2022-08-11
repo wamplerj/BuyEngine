@@ -28,7 +28,7 @@ public class SalesOrder
 
 public static class SalesOrderMapper
 {
-    public static Order ToOrder(this SalesOrder salesOrder) => new Order();
+    public static Order ToOrder(this SalesOrder salesOrder) => new();
 }
 
 public class SalesOrderAddress : Address

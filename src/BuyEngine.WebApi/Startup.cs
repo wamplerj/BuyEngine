@@ -41,9 +41,8 @@ public class Startup
 
         services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "BuyEngine API Documentation", Version = "v1" }); });
 
-        //services.AddControllers();
-        services.AddCatalogServices();
-        services.AddCheckoutServices();
+        services.AddCatalogServices(true);
+        services.AddCheckoutServices(true);
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

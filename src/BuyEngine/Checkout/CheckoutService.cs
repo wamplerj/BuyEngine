@@ -25,29 +25,36 @@ public class CheckoutService : ICheckoutService
         _logger = logger;
     }
 
-    public async Task<Guid> CheckoutAsync(SalesOrder salesOrder)
+    public async Task<OrderResult> CheckoutAsync(SalesOrder salesOrder)
     {
-        await VerifyInventoryAvailable(salesOrder);
-        await VerifyShippingMethod(salesOrder);
+        var itemsAvailable = await VerifyInventoryAvailable(salesOrder);
+        if (!itemsAvailable)
+            return new OrderResult
+                { Message = $"Inventory Availability: {salesOrder.ShippingMethod.Name} is not available for Shipping Address: {salesOrder.ShipTo}" };
+
+
+        var canShip = await VerifyShippingMethod(salesOrder);
+        if (!canShip)
+            return new OrderResult
+                { Message = $"ShippingMethod: {salesOrder.ShippingMethod.Name} is not available for Shipping Address: {salesOrder.ShipTo}" };
+
         await ProcessPayment(salesOrder);
 
-        var orderId = await ProcessOrder(salesOrder);
-        return orderId;
+        var result = await ProcessOrder(salesOrder);
+        return result;
     }
 
-    private async Task VerifyShippingMethod(SalesOrder salesOrder)
+    private async Task<bool> VerifyShippingMethod(SalesOrder salesOrder)
     {
         var canShip = await _shippingService.IsShippingAvailable(salesOrder.ShippingMethod, salesOrder.ShipTo);
-        if (!canShip)
-            throw new ShippingMethodNotAvailableException(
-                $"ShippingMethod: {salesOrder.ShippingMethod.Name} is not available for Shipping Address: {salesOrder.ShipTo}");
+        return canShip;
     }
 
-    private async Task<Guid> ProcessOrder(SalesOrder salesOrder)
+    private async Task<OrderResult> ProcessOrder(SalesOrder salesOrder)
     {
         var order = salesOrder.ToOrder();
-        var orderId = await _orderService.AddAsync(order);
-        return orderId;
+        var result = await _orderService.AddAsync(order);
+        return result;
     }
 
     private async Task ProcessPayment(SalesOrder salesOrder)
@@ -58,20 +65,20 @@ public class CheckoutService : ICheckoutService
                 $"Payment for SalesOrder: {salesOrder.Id} has not been authorized.  Payment can not be processed");
 
         var transactionId = await _paymentService.CollectPaymentAsync(salesOrder.Payment);
-        _logger.LogInformation("Payment processed for Sales Order: ");
+        _logger.LogInformation($"Payment processed for Sales Order: {salesOrder.Id}, TransactionId: {transactionId}");
     }
 
-    private async Task VerifyInventoryAvailable(SalesOrder salesOrder)
+    private async Task<bool> VerifyInventoryAvailable(SalesOrder salesOrder)
     {
         //TODO Implement Backorder functionality if enabled
         var skus = salesOrder.Cart.Items.Select(i => i.Sku);
 
-        var skuInventory = await _inventoryService.IsAvailable(skus);
-        skuInventory.ThrowIfOutOfStock();
+        var status = await _inventoryService.IsAvailable(skus);
+        return status.AllAvailable;
     }
 }
 
 public interface ICheckoutService
 {
-    Task<Guid> CheckoutAsync(SalesOrder salesOrder);
+    Task<OrderResult> CheckoutAsync(SalesOrder salesOrder);
 }

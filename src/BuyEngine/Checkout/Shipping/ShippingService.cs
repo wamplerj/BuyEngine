@@ -4,6 +4,13 @@ namespace BuyEngine.Checkout.Shipping;
 
 public class ShippingService : IShippingService
 {
+    private readonly ShippingConfiguration _configuration;
+
+    public ShippingService(ShippingConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
     public async Task<List<ShippingMethod>> GetAvailableShippingMethods(Address address) =>
         new()
         {
@@ -20,7 +27,11 @@ public class ShippingService : IShippingService
 
     public async Task<Guid> BuyShipping(Cart cart, Address address, decimal weight, PackageDimension dimensions) => Guid.NewGuid();
 
-    public Task<bool> IsShippingAvailable(ShippingMethod salesOrderShippingMethod, Address address) => throw new NotImplementedException();
+    public Task<bool> IsShippingAvailable(ShippingMethod shippingMethod, Address address) => throw new NotImplementedException();
+}
+
+public class ShippingConfiguration
+{
 }
 
 public interface IShippingService
@@ -29,5 +40,5 @@ public interface IShippingService
     Task<decimal> GetPackageWeight(Cart cart);
     Task<PackageDimension> GetPackageDimensions(Cart cart);
     Task<Guid> BuyShipping(Cart cart, Address address, decimal weight, PackageDimension dimensions);
-    Task<bool> IsShippingAvailable(ShippingMethod salesOrderShippingMethod, Address address);
+    Task<bool> IsShippingAvailable(ShippingMethod shippingMethod, Address address);
 }

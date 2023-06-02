@@ -1,9 +1,9 @@
 ﻿namespace BuyEngine.Catalog.Brands;
 
-public class Brand
+public record Brand
 {
     public Guid Id { get; set; }
-    public string Name { get; set; }
-    public string WebsiteUrl { get; set; }
-    public string Notes { get; set; }
+    public string Name { get; init; }
+    public string WebsiteUrl { get; init; }
+    public string Notes { get; init; }
 }

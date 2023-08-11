@@ -30,15 +30,14 @@ public class ProductValidator : IProductValidator
 
         var unique = await IsSkuUniqueAsync(product.Sku);
         if (!unique)
-            result.AddMessage(nameof(product.Sku), "Product SKU must be Unique");
+            result.AddMessage("SkuUnique", "Product SKU must be Unique");
 
         return result;
     }
 
     public async Task<bool> IsSkuUniqueAsync(string sku)
     {
-        if (string.IsNullOrWhiteSpace(sku))
-            return true; //HACK: Can't have two Sku messages.  Need to refactor
+        if (string.IsNullOrWhiteSpace(sku)) return false;
 
         var exists = await _productRepository.ExistsAsync(sku);
         return !exists;

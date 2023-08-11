@@ -65,7 +65,7 @@ public class CheckoutService : ICheckoutService
                 $"Payment for SalesOrder: {salesOrder.Id} has not been authorized.  Payment can not be processed");
 
         var transactionId = await _paymentService.CollectPaymentAsync(salesOrder.Payment);
-        _logger.LogInformation($"Payment processed for Sales Order: {salesOrder.Id}, TransactionId: {transactionId}");
+        _logger.LogInformation("Payment processed for Sales Order: {salesOrder.Id}, TransactionId: {transactionId}", salesOrder.Id, transactionId);
     }
 
     private async Task<bool> VerifyInventoryAvailable(SalesOrder salesOrder)

@@ -50,7 +50,7 @@ public class ProductValidatorTests
 
         var result = await _validator.ValidateAsync(product);
         Assert.That(result.IsValid, Is.False);
-        Assert.That(result.Messages.Count, Is.EqualTo(1));
+        Assert.That(result.Messages.Count, Is.EqualTo(2));
         Assert.That(result.Messages.First().Key, Is.EqualTo(nameof(product.Sku)));
     }
 

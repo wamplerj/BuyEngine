@@ -31,7 +31,7 @@ public class CartService : ICartService
     public async Task<Cart> CreateAsync(Guid? cartId)
     {
         cartId ??= Guid.NewGuid();
-        _logger.LogInformation($"Creating new Cart with Id: {cartId}");
+        _logger.LogInformation("Creating new Cart with Id: {cartId}", cartId);
 
         var cart = new Cart
         {
@@ -53,7 +53,7 @@ public class CartService : ICartService
         var product = await _productRepository.GetAsync(productId);
         if (product == null)
         {
-            _logger.LogWarning($"Product with Id: {productId} could not be found");
+            _logger.LogWarning("Product with Id: {productId} could not be found", productId);
             throw new ArgumentException($"Product with Id: {productId} could not be found", nameof(productId));
         }
 
@@ -69,12 +69,12 @@ public class CartService : ICartService
         {
             cartItem.Id = Guid.NewGuid();
             cart.Items.Add(cartItem);
-            _logger.LogInformation($"Adding CartItem {cartItem.Id} for Sku: {cartItem.Sku} to Cart Id: {cart.Id}");
+            _logger.LogInformation("Adding CartItem {cartItem.Id} for Sku: {cartItem.Sku} to Cart Id: {cart.Id}", cartItem.Id, cartItem.Sku, cart.Id);
         }
 
         await UpdateAsync(cart);
 
-        _logger.LogInformation($"Cart with Id: {cartId} updated with Product: {productId}, Quantity: {quantity}");
+        _logger.LogInformation("Cart with Id: {cartId} updated with Product: {productId}, Quantity: {quantity}", cartId, productId, quantity);
         return cart;
     }
 
@@ -84,7 +84,7 @@ public class CartService : ICartService
         result.ThrowIfInvalid(nameof(cart));
 
         cart.Expires = DateTime.UtcNow.AddMinutes(CatalogConfiguration.CartExpirationInMinutes);
-        var success = await _cartRepository.Update(cart);
+        _ = await _cartRepository.Update(cart);
     }
 
     public async Task<bool> AbandonAsync(Guid cartId)
@@ -93,17 +93,17 @@ public class CartService : ICartService
 
         if (cart == null)
         {
-            _logger.LogWarning($"Cart Id: {cartId} could not be found.");
+            _logger.LogWarning("Cart Id: {cartId} could not be found.", cartId);
             return false;
         }
 
         if (cart.IsExpired)
         {
-            _logger.LogInformation($"Abandoning Cart ID: {cartId}");
+            _logger.LogInformation("Abandoning Cart ID: {cartId}", cartId);
             return await _cartRepository.Delete(cartId);
         }
 
-        _logger.LogWarning($"Cart Id: {cartId} has not expired.  Can not be abandoned");
+        _logger.LogWarning("Cart Id: {cartId} has not expired.  Can not be abandoned", cartId);
         return false;
     }
 }

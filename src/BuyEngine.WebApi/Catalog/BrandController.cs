@@ -50,7 +50,7 @@ public class BrandController : ControllerBase
         }
 
         var id = await _brandService.AddAsync(brand);
-        var url = Url.Action("Get", id);
+        var url = Url.Action("Get", id)!;
         return Created(url, brand);
     }
 
@@ -65,7 +65,7 @@ public class BrandController : ControllerBase
             return BadRequest(result.Messages);
         }
 
-        var success = await _brandService.UpdateAsync(brand);
+        _ = await _brandService.UpdateAsync(brand);
 
         var url = Url.Action("Get", brand.Id);
         return Ok(url);

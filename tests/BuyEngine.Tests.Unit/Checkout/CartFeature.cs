@@ -150,4 +150,42 @@ public class CartFeature
         _cartRepository.Verify(cr => cr.GetAsync(It.IsAny<Guid>()), Times.Once);
         _cartRepository.Verify(cr => cr.Delete(It.IsAny<Guid>()), Times.Once);
     }
+
+    [Test]
+    public async Task WhenACartIsAbandonedAndNotExpired_AbandoningTheCartFails()
+    {
+        var cart = new Cart
+        {
+            Id = Guid.NewGuid(),
+            Expires = DateTime.UtcNow.AddHours(1),
+            Items = new List<CartItem>
+            {
+                new() { Id = Guid.NewGuid(), ProductId = _product.Id, Name = "My product", Price = 19.95m, Quantity = 3, Sku = "PRD-001" }
+            }
+        };
+
+        _cartRepository.Setup(cr => cr.GetAsync(cart.Id)).ReturnsAsync(cart);
+        _cartRepository.Setup(cr => cr.Delete(It.IsAny<Guid>())).ReturnsAsync(true);
+
+        var result = await _service.AbandonAsync(cart.Id);
+
+        Assert.That(result, Is.False);
+        _cartRepository.Verify(cr => cr.GetAsync(It.IsAny<Guid>()), Times.Once);
+        _cartRepository.Verify(cr => cr.Delete(It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Test]
+    public async Task WhenACartCannotBeFoundById_AWarningIsLogged()
+    {
+        var cartId = Guid.NewGuid();
+
+        _cartRepository.Setup(cr => cr.GetAsync(cartId)).ReturnsAsync((Cart)null);
+        _cartRepository.Setup(cr => cr.Delete(It.IsAny<Guid>())).ReturnsAsync(true);
+
+        var result = await _service.AbandonAsync(cartId);
+
+        Assert.That(result, Is.False);
+        _cartRepository.Verify(cr => cr.GetAsync(It.IsAny<Guid>()), Times.Once);
+        _cartRepository.Verify(cr => cr.Delete(It.IsAny<Guid>()), Times.Never);
+    }
 }

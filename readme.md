@@ -1,7 +1,7 @@
 # BuyEngine
 [![Build status](https://ci.appveyor.com/api/projects/status/qgces8lt7f4tb1fy?svg=true)](https://ci.appveyor.com/project/wamplerj/buyengine)
 
-BuyEngine is a .NET 6 library designed to add e-commerce functionality to new or existing .NET projects.
+BuyEngine is a .NET 7 library designed to add e-commerce functionality to new or existing .NET projects.
 
 ## Roadmap
 - ~~Version 0.1 - Basic Product Management functionality (Products, Suppliers, Brands)~~

@@ -12,6 +12,7 @@ public static class CheckoutRegistrations
         services.AddTransient<ICartService, CartService>();
         services.AddSingleton<ICartRepository, InMemoryCartRepository>();
         services.AddTransient<ICheckoutService, CheckoutService>();
+        services.AddSingleton<ShippingConfiguration>();
         services.AddTransient<IShippingService, ShippingService>();
         services.AddTransient<IModelValidator<Cart>, CartValidator>();
         services.AddTransient<IModelValidator<ShippingMethod>, ShippingValidator>();

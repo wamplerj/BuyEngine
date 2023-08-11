@@ -38,12 +38,15 @@ public class CartFeature
     public async Task AsAShopper_WhenIAddAnItemToACartForTheFirstTime_ACartIsCreated()
     {
         var cartId = Guid.NewGuid();
+        var now = DateTime.UtcNow;
 
         var result = await _service.AddItemAsync(cartId, _product.Id, 5);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Id, Is.EqualTo(cartId));
         Assert.That(result.Items.Count, Is.EqualTo(1));
+        Assert.That(result.Created, Is.GreaterThanOrEqualTo(now));
+        Assert.That(result.Expires, Is.GreaterThanOrEqualTo(now.AddHours(2)));
 
         var item = result.Items.First();
 
@@ -60,10 +63,13 @@ public class CartFeature
         var cartId = Guid.NewGuid();
         var productId = Guid.NewGuid();
 
+        var now = DateTime.UtcNow;
+
         var cart = new Cart
         {
             Id = cartId,
-            Expires = DateTime.UtcNow.AddHours(2),
+            Expires = now.AddHours(2),
+            Created = now,
             Items = new List<CartItem>
             {
                 new() { Id = Guid.NewGuid(), Name = "First", Price = 0.99m, Quantity = 25, Sku = "FST-001" }
@@ -77,6 +83,9 @@ public class CartFeature
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Id, Is.EqualTo(cartId));
         Assert.That(result.Items.Count, Is.EqualTo(2));
+        Assert.That(result.Total, Is.EqualTo(124.50));
+        Assert.That(result.Created, Is.EqualTo(now));
+        Assert.That(result.Expires, Is.GreaterThanOrEqualTo(now.AddHours(2)));
 
         var item = result.Items[1];
 

@@ -1,6 +1,6 @@
 ﻿using BuyEngine.Catalog.Brands;
 using Microsoft.AspNetCore.Mvc;
-using NLog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -11,12 +11,12 @@ namespace BuyEngine.WebApi.Catalog;
 public class BrandController : ControllerBase
 {
     private readonly IBrandService _brandService;
-    private readonly Logger _logger;
+    private readonly ILogger<BrandController> _logger;
 
-    public BrandController(IBrandService brandService)
+    public BrandController(IBrandService brandService, ILogger<BrandController> logger)
     {
         _brandService = brandService;
-        _logger = LogManager.GetCurrentClassLogger();
+        _logger = logger;
     }
 
     [HttpGet]
@@ -25,7 +25,7 @@ public class BrandController : ControllerBase
     {
         if (brandId == default)
         {
-            _logger.Info("BrandId is invalid.  Id must be a valid guid");
+            _logger.LogInformation("BrandId is invalid.  Id must be a valid guid");
             return BadRequest($"{brandId} is not a valid Brand ID");
         }
 
@@ -34,7 +34,7 @@ public class BrandController : ControllerBase
         if (product != null)
             return Ok(product);
 
-        _logger.Info($"BrandId: {brandId} was not found.");
+        _logger.LogInformation($"BrandId: {brandId} was not found.");
         return NotFound($"BrandId: {brandId} was not found");
     }
 
@@ -43,9 +43,9 @@ public class BrandController : ControllerBase
     public async Task<ActionResult> Add([FromBody] Brand brand)
     {
         var result = await _brandService.ValidateAsync(brand);
-        if (!result.IsValid)
+        if (result.IsInvalid)
         {
-            _logger.Info($"Failed to add Brand: {brand.Name} due to validation issues");
+            _logger.LogInformation($"Failed to add Brand: {brand.Name} due to validation issues");
             return BadRequest(result.Messages);
         }
 
@@ -59,9 +59,9 @@ public class BrandController : ControllerBase
     public async Task<ActionResult> Update([FromBody] Brand brand)
     {
         var result = await _brandService.ValidateAsync(brand);
-        if (!result.IsValid)
+        if (result.IsInvalid)
         {
-            _logger.Info($"Failed to update Brand: {brand.Name} due to validation issues");
+            _logger.LogInformation($"Failed to update Brand: {brand.Name} due to validation issues");
             return BadRequest(result.Messages);
         }
 
@@ -77,12 +77,12 @@ public class BrandController : ControllerBase
     {
         if (brandId == default)
         {
-            _logger.Info($"{brandId} is invalid.  Id must be a valid guid");
+            _logger.LogInformation($"{brandId} is invalid.  Id must be a valid guid");
             return BadRequest($"{brandId} is not a valid Brand ID");
         }
 
         await _brandService.RemoveAsync(brandId);
-        _logger.Info($"BrandId: {brandId} was deleted sucessfully.");
+        _logger.LogInformation($"BrandId: {brandId} was deleted successfully.");
 
         return Ok();
     }

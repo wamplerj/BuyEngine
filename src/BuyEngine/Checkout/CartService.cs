@@ -80,8 +80,7 @@ public class CartService : ICartService
 
     public async Task UpdateAsync(Cart cart)
     {
-        var result = await _validator.ValidateAsync(cart);
-        result.ThrowIfInvalid(nameof(cart));
+        await _validator.ThrowIfInvalidAsync(cart, nameof(cart));
 
         cart.Expires = DateTime.UtcNow.AddMinutes(CatalogConfiguration.CartExpirationInMinutes);
         _ = await _cartRepository.Update(cart);

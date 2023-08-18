@@ -1,8 +1,7 @@
 ﻿using BuyEngine.Catalog;
 using BuyEngine.Common;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using NLog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,13 +12,13 @@ namespace BuyEngine.WebApi.Catalog;
 [ApiController]
 public class ProductController : ControllerBase
 {
-    private readonly Logger _logger;
+    private readonly ILogger<ProductController> _logger;
     private readonly IProductService _productService;
 
-    public ProductController(IProductService productService)
+    public ProductController(IProductService productService, ILogger<ProductController> logger)
     {
         _productService = productService;
-        _logger = LogManager.GetCurrentClassLogger();
+        _logger = logger;
     }
 
     [HttpGet]
@@ -29,12 +28,11 @@ public class ProductController : ControllerBase
 
         if (products.Any())
         {
-            _logger.Info($"{products.Count} Products were found on Page: {page}, PageSize: {pageSize}");
-            _logger.Debug(JsonConvert.SerializeObject(products));
+            _logger.LogInformation("{products.Count} Products were found on Page: {page}, PageSize: {pageSize}", products.Count, page, pageSize);
             return Ok(products);
         }
 
-        _logger.Warn($"No Products were found on Page: {page}, PageSize: {pageSize}");
+        _logger.LogWarning("No Products were found on Page: {page}, PageSize: {pageSize}", page, pageSize);
         return NotFound("No Products were found");
     }
 
@@ -45,7 +43,7 @@ public class ProductController : ControllerBase
     {
         if (productId == default)
         {
-            _logger.Info("ProductId is invalid.  Id must be >= 0");
+            _logger.LogInformation("ProductId is invalid.  Id must be >= 0");
             return BadRequest($"{productId} is not a valid Product ID");
         }
 
@@ -53,12 +51,11 @@ public class ProductController : ControllerBase
 
         if (product != null)
         {
-            _logger.Info($"Product: {productId} was found");
-            _logger.Debug(JsonConvert.SerializeObject(product));
+            _logger.LogInformation("Product: {productId} was found", productId);
             return Ok(product);
         }
 
-        _logger.Info($"ProductId: {productId} was not found.");
+        _logger.LogInformation("ProductId: {productId} was not found.", productId);
         return NotFound($"ProductId: {productId} was not found");
     }
 
@@ -68,7 +65,7 @@ public class ProductController : ControllerBase
     {
         if (string.IsNullOrEmpty(sku))
         {
-            _logger.Info("Sku is invalid.  Sku cannot be null or empty");
+            _logger.LogInformation("Sku: {sku} is invalid.  Sku cannot be null or empty", sku);
             return BadRequest($"{sku} is not a valid sku");
         }
 
@@ -77,7 +74,7 @@ public class ProductController : ControllerBase
         if (product != null)
             return Ok(product);
 
-        _logger.Info($"Sku: {sku} was not found.");
+        _logger.LogInformation("Sku: {sku} was not found.", sku);
         return NotFound($"Sku: {sku} was not found.");
     }
 
@@ -88,9 +85,9 @@ public class ProductController : ControllerBase
         Guard.Null(product, nameof(product));
 
         var validationResult = await _productService.ValidateAsync(product, true);
-        if (!validationResult.IsValid)
+        if (validationResult.IsInvalid)
         {
-            _logger.Info($"Failed to add Product: {product.Sku} due to validation issues");
+            _logger.LogInformation("Failed to add Product: {product.Sku} due to validation issues", product.Sku);
             return BadRequest(validationResult.Messages);
         }
 
@@ -106,13 +103,13 @@ public class ProductController : ControllerBase
         product.Id = id;
 
         var validationResult = await _productService.ValidateAsync(product, false);
-        if (!validationResult.IsValid)
+        if (validationResult.IsInvalid)
         {
-            _logger.Info($"Failed to update Product: {product.Sku} due to validation issues");
+            _logger.LogInformation("Failed to update Product: {product.Sku} due to validation issues", product.Sku);
             return BadRequest(validationResult.Messages);
         }
 
-        var result = await _productService.UpdateAsync(product);
+        _ = await _productService.UpdateAsync(product);
         return NoContent();
     }
 }

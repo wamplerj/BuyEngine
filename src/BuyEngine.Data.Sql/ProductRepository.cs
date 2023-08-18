@@ -5,7 +5,7 @@ using BuyEngine.Common;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using NLog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,9 +14,8 @@ namespace BuyEngine.Data.Sql
 {
     public class ProductRepository : IProductRepository
     {
-        private const string NullString = "<null>";
         private readonly string _connectionString;
-        private readonly Logger _logger;
+        private readonly ILogger<ProductRepository> _logger;
 
         private readonly Func<Product, Brand, Supplier, Product> _mapProduct = (product, brand, supplier) =>
         {
@@ -25,30 +24,29 @@ namespace BuyEngine.Data.Sql
             return product;
         };
 
-
-        public ProductRepository(IConfiguration configuration)
+        public ProductRepository(IConfiguration configuration, ILogger<ProductRepository> logger)
         {
-            _logger = LogManager.GetCurrentClassLogger();
+            _logger = logger;
             _connectionString = configuration.GetConnectionString("BuyEngine");
         }
 
         public async Task<Product> GetAsync(string sku)
         {
-            _logger.Debug($"Querying for Product by Sku: {sku}");
+            _logger.LogDebug("Querying for Product by Sku: {sku}", sku);
             var product = await QueryProduct(ProductQueries.GetBySku, new { sku });
 
-            _logger.Debug($"Product returned was {product?.Id.ToString() ?? NullString}");
+            _logger.LogDebug("Product returned was {product.Id}", product.Id);
             return product;
         }
 
         public async Task<PagedList<Product>> GetAllAsync(int pageSize, int page)
         {
-            _logger.Debug($"Querying for Product All Products, Page: {page}, PageSize: {pageSize}");
+            _logger.LogDebug("Querying for Product All Products, Page: {page}, PageSize: {pageSize}", page, pageSize);
 
             var parameters = new { pageSize, skip = (page - 1) * pageSize };
             var products = await QueryProducts(ProductQueries.GetAll, parameters, pageSize, page);
 
-            _logger.Debug($"{products.Count} Products were returned");
+            _logger.LogDebug("{products.Count} Products were returned", products.Count);
             return products;
         }
 
@@ -71,35 +69,35 @@ namespace BuyEngine.Data.Sql
 
         public async Task<Product> GetAsync(Guid productId)
         {
-            _logger.Debug($"Querying for Product by Id: {productId}");
+            _logger.LogDebug("Querying for Product by Id: {productId}", productId);
 
             var product = await QueryProduct(ProductQueries.GetById, new { productid = productId });
 
-            _logger.Debug($"Product returned was {product?.Id.ToString() ?? NullString}");
+            _logger.LogDebug($"Product returned was {product.Id}", product.Id);
             return product;
         }
 
         public async Task<PagedList<Product>> GetAllBySupplierAsync(Guid supplierId, int pageSize, int page)
         {
-            _logger.Debug(
-                $"Querying for Product All Products for Supplier: {supplierId}, Page: {page}, PageSize: {pageSize}");
+            _logger.LogDebug(
+                "Querying for Product All Products for Supplier: {supplierId}, Page: {page}, PageSize: {pageSize}", supplierId, page, pageSize);
 
             var parameters = new { supplierId, pageSize, skip = (page - 1) * pageSize };
             var products = await QueryProducts(ProductQueries.GetAllBySupplierId, parameters, pageSize, page);
 
-            _logger.Debug($"{products.Count} Products were returned");
+            _logger.LogDebug("{products.Count} Products were returned", products.Count);
             return products;
         }
 
         public async Task<PagedList<Product>> GetAllByBrandAsync(Guid brandId, int pageSize, int page)
         {
-            _logger.Debug(
-                $"Querying for Product All Products for Brand: {brandId}, Page: {page}, PageSize: {pageSize}");
+            _logger.LogDebug(
+                "Querying for Product All Products for Brand: {brandId}, Page: {page}, PageSize: {pageSize}", brandId, page, pageSize);
 
             var parameters = new { brandId, pageSize, skip = (page - 1) * pageSize };
             var products = await QueryProducts(ProductQueries.GetAllByBrandId, parameters, pageSize, page);
 
-            _logger.Debug($"{products.Count} Products were returned");
+            _logger.LogDebug("{products.Count} Products were returned", products.Count);
             return products;
         }
 
@@ -108,7 +106,7 @@ namespace BuyEngine.Data.Sql
             await using var connection = new SqlConnection(_connectionString);
 
             sql = $"{sql}{ProductQueries.GetPageInfo}";
-            _logger.Trace($"SQL Query: ${sql}");
+            _logger.LogTrace("SQL Query: {sql}", sql);
 
             var result = await connection.QueryMultipleAsync(sql, parameters);
 
@@ -126,7 +124,7 @@ namespace BuyEngine.Data.Sql
         {
             await using var connection = new SqlConnection(_connectionString);
 
-            _logger.Trace($"SQL Query: ${sql}");
+            _logger.LogTrace("SQL Query: {sql}", sql);
 
             var product = (await connection.QueryAsync(sql, _mapProduct, parameters, splitOn: "BrandId,SupplierId"))
                 .FirstOrDefault();

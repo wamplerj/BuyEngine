@@ -75,7 +75,7 @@ public class ProductService : IProductService
 
         if (product.Quantity > 0)
         {
-            _logger.LogInformation($"Product {product.Sku} has current inventory and can not be removed.  It was disabled instead.", product);
+            _logger.LogInformation("Product {product.Sku} has current inventory and can not be removed.  It was disabled instead.", product.Sku);
 
             product.Enabled = false;
             product.Sku = string.Empty;
@@ -93,10 +93,8 @@ public class ProductService : IProductService
     {
         Guard.Default(productId, nameof(productId));
 
-        var product = await _productRepository.GetAsync(productId);
-        if (product == null)
-            throw new ArgumentException("ProductId could not be found", nameof(productId));
-
+        var product = await _productRepository.GetAsync(productId)
+                      ?? throw new ArgumentException("ProductId could not be found", nameof(productId));
         await RemoveAsync(product);
     }
 
@@ -107,11 +105,11 @@ public class ProductService : IProductService
         return _productValidator.IsSkuUniqueAsync(sku);
     }
 
-    public async Task<ValidationResult> ValidateAsync(Product product, bool requireUniqueSku = true)
+    public async Task<ValidationResult> ValidateAsync(Product product, bool isProductNew = true)
     {
         Guard.Default(product, nameof(product));
 
-        return await _productValidator.ValidateAsync(product, requireUniqueSku);
+        return await _productValidator.ValidateAsync(product, isProductNew);
     }
 }
 
@@ -128,5 +126,5 @@ public interface IProductService
     Task RemoveAsync(Guid productId);
     Task RemoveAsync(Product product);
     Task<bool> UpdateAsync(Product product);
-    Task<ValidationResult> ValidateAsync(Product product, bool requireUniqueSku = true);
+    Task<ValidationResult> ValidateAsync(Product product, bool isProductNew = true);
 }

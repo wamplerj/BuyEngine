@@ -3,6 +3,7 @@ using BuyEngine.Common;
 using BuyEngine.WebApi.Catalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -16,12 +17,14 @@ public class BrandControllerTests
     private Mock<IBrandService> _brandService;
 
     private BrandController _controller;
+    private Mock<ILogger<BrandController>> _logger;
 
     [SetUp]
     public void Setup()
     {
         _brandService = new Mock<IBrandService>();
-        _controller = new BrandController(_brandService.Object);
+        _logger = new Mock<ILogger<BrandController>>();
+        _controller = new BrandController(_brandService.Object, _logger.Object);
     }
 
     [Test]

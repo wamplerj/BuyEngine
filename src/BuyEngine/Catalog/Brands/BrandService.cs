@@ -23,7 +23,7 @@ public class BrandService : IBrandService
         Guard.Null(brand, nameof(brand));
 
         var result = await _validator.ValidateAsync(brand);
-        if (!result.IsValid)
+        if (result.IsInvalid)
             throw new ValidationException(result, nameof(brand));
 
         var id = await _brandRepository.AddAsync(brand);
@@ -35,7 +35,7 @@ public class BrandService : IBrandService
         Guard.Null(brand, nameof(brand));
 
         var result = await _validator.ValidateAsync(brand);
-        if (!result.IsValid)
+        if (result.IsInvalid)
             throw new ValidationException(result, nameof(brand));
 
         var success = await _brandRepository.UpdateAsync(brand);

@@ -20,9 +20,7 @@ public class SupplierService : ISupplierService
 
     public async Task<Guid> AddAsync(Supplier supplier)
     {
-        var result = await _validator.ValidateAsync(supplier);
-        if (!result.IsValid)
-            throw new ValidationException(result, nameof(supplier));
+        await _validator.ThrowIfInvalidAsync(supplier, nameof(supplier));
 
         var id = await _supplierRepository.AddAsync(supplier);
         return id;
@@ -30,9 +28,7 @@ public class SupplierService : ISupplierService
 
     public async Task<bool> UpdateAsync(Supplier supplier)
     {
-        var result = await _validator.ValidateAsync(supplier);
-        if (!result.IsValid)
-            throw new ValidationException(result, nameof(supplier));
+        await _validator.ThrowIfInvalidAsync(supplier, nameof(supplier));
 
         var success = await _supplierRepository.UpdateAsync(supplier);
         return success;

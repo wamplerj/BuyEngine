@@ -3,6 +3,7 @@ using BuyEngine.Common;
 using BuyEngine.WebApi.Catalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -15,12 +16,14 @@ public class SupplierControllerTests
 {
     private SupplierController _controller;
     private Mock<ISupplierService> _supplierService;
+    private Mock<ILogger<SupplierController>> _logger;
 
     [SetUp]
     public void Setup()
     {
         _supplierService = new Mock<ISupplierService>();
-        _controller = new SupplierController(_supplierService.Object);
+        _logger = new Mock<ILogger<SupplierController>>();
+        _controller = new SupplierController(_supplierService.Object, _logger.Object);
     }
 
     [Test]

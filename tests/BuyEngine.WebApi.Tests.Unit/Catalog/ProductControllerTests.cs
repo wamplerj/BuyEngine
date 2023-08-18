@@ -1,6 +1,7 @@
 using BuyEngine.Catalog;
 using BuyEngine.WebApi.Catalog;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -11,13 +12,15 @@ public class ProductControllerTests
 {
     private ProductController _controller;
     private Mock<IProductService> _productService;
+    private Mock<ILogger<ProductController>> _logger;
 
     [SetUp]
     public void Setup()
     {
         _productService = new Mock<IProductService>();
+        _logger = new Mock<ILogger<ProductController>>();
 
-        _controller = new ProductController(_productService.Object);
+        _controller = new ProductController(_productService.Object, _logger.Object);
     }
 
     [Test]

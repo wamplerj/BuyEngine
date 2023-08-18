@@ -13,7 +13,7 @@ public class ProductValidator : IProductValidator
 
     public async Task<ValidationResult> ValidateAsync(Product product) => await ValidateAsync(product, true);
 
-    public async Task<ValidationResult> ValidateAsync(Product product, bool requireUniqueSku)
+    public async Task<ValidationResult> ValidateAsync(Product product, bool isProductNew)
     {
         var result = new ValidationResult();
 
@@ -26,7 +26,7 @@ public class ProductValidator : IProductValidator
         if (product.Price < decimal.Zero)
             result.AddMessage(nameof(product.Price), $"Product {nameof(product.Price)} must be greater then or equal to zero");
 
-        if (!requireUniqueSku || !product.Enabled) return result;
+        if (!isProductNew || !product.Enabled) return result;
 
         var unique = await IsSkuUniqueAsync(product.Sku);
         if (!unique)
@@ -46,6 +46,6 @@ public class ProductValidator : IProductValidator
 
 public interface IProductValidator : IModelValidator<Product>
 {
-    Task<ValidationResult> ValidateAsync(Product product, bool requireUniqueSku);
+    Task<ValidationResult> ValidateAsync(Product product, bool isProductNew);
     Task<bool> IsSkuUniqueAsync(string sku);
 }

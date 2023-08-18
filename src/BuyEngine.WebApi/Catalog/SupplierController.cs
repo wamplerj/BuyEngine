@@ -1,6 +1,6 @@
 ﻿using BuyEngine.Catalog.Suppliers;
 using Microsoft.AspNetCore.Mvc;
-using NLog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -10,13 +10,13 @@ namespace BuyEngine.WebApi.Catalog;
 [ApiController]
 public class SupplierController : ControllerBase
 {
-    private readonly Logger _logger;
+    private readonly ILogger<SupplierController> _logger;
     private readonly ISupplierService _supplierService;
 
-    public SupplierController(ISupplierService supplierService)
+    public SupplierController(ISupplierService supplierService, ILogger<SupplierController> logger)
     {
         _supplierService = supplierService;
-        _logger = LogManager.GetCurrentClassLogger();
+        _logger = logger;
     }
 
     [HttpGet]
@@ -25,7 +25,7 @@ public class SupplierController : ControllerBase
     {
         if (supplierId == default)
         {
-            _logger.Info("SupplierId is invalid.  Id must be >= 0");
+            _logger.LogInformation("SupplierId is invalid.  Id must be >= 0");
             return BadRequest($"{supplierId} is not a valid Supplier ID");
         }
 
@@ -34,7 +34,7 @@ public class SupplierController : ControllerBase
         if (product != null)
             return Ok(product);
 
-        _logger.Info($"SupplierId: {supplierId} was not found.");
+        _logger.LogInformation("SupplierId: {supplierId} was not found.", supplierId);
         return NotFound($"SupplierId: {supplierId} was not found");
     }
 
@@ -43,9 +43,9 @@ public class SupplierController : ControllerBase
     public async Task<ActionResult> Add([FromBody] Supplier supplier)
     {
         var result = await _supplierService.ValidateAsync(supplier);
-        if (!result.IsValid)
+        if (result.IsInvalid)
         {
-            _logger.Info($"Failed to add Supplier: {supplier.Name} due to validation issues");
+            _logger.LogInformation("Failed to add Supplier: {supplier.Name} due to validation issues", supplier.Name);
             return BadRequest(result.Messages);
         }
 
@@ -58,9 +58,9 @@ public class SupplierController : ControllerBase
     public async Task<ActionResult> Update([FromBody] Supplier supplier)
     {
         var result = await _supplierService.ValidateAsync(supplier);
-        if (!result.IsValid)
+        if (result.IsInvalid)
         {
-            _logger.Info($"Failed to update Supplier: {supplier.Name} due to validation issues");
+            _logger.LogInformation("Failed to update Supplier: {supplier.Name} due to validation issues", supplier.Name);
             return BadRequest(result.Messages);
         }
 
@@ -75,12 +75,12 @@ public class SupplierController : ControllerBase
     {
         if (supplierId == default)
         {
-            _logger.Info("SupplierId is invalid.  Id must be >= 0");
+            _logger.LogInformation("SupplierId is invalid.  Id must be >= 0");
             return BadRequest($"{supplierId} is not a valid Supplier ID");
         }
 
         await _supplierService.RemoveAsync(supplierId);
-        _logger.Info($"SupplierId: {supplierId} was deleted sucessfully.");
+        _logger.LogInformation("SupplierId: {supplierId} was deleted successfully.", supplierId);
 
         return NoContent();
     }
